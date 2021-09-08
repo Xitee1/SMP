@@ -1,9 +1,12 @@
 package de.xite.smp.main;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import net.md_5.bungee.api.ChatColor;
 
 public class VerifyCommand implements CommandExecutor{
 	static Main pl = Main.pl;
@@ -13,10 +16,8 @@ public class VerifyCommand implements CommandExecutor{
 		if(sender instanceof Player) {
 			Player p = (Player) sender;
 			if(args.length == 0) {
-				p.sendMessage("Du musst dich verifizieren bevor du mit der Welt interagieren kannst.");
-				p.sendMessage("Schreibe mir dazu bitte eine kurze Email an xitecraft1@gmail.com.");
-				p.sendMessage("Diese Mail muss nur deinen Ingamename enthalten.");
-				p.sendMessage("Innerhalb einem Tag werde ich dich zur Whitelist hinzufügen. Es könnte aber auch mal ein paar Tage länger dauern.");
+				p.sendMessage("Du musst dich verifizieren, bevor du mit der Welt interagieren kannst.");
+				p.sendMessage("Bitte betrete dazu den XiteSMP Discord Server (https://discord.gg/PZ2fHC3Wwr) und frag Xitee (Owner) nach einem verify.");
 			}else if(p.hasPermission("smp.verify") || p.isOp()){
 				if(args.length == 1) {
 					if(args[0].equalsIgnoreCase("list")) {
@@ -33,12 +34,21 @@ public class VerifyCommand implements CommandExecutor{
 						Main.verified.add(args[1]);
 						pl.getConfig().set("allowed", Main.verified);
 						pl.saveConfig();
-						p.sendMessage("Spieler "+args[1]+" wurde hinzugefügt!");
+						p.sendMessage("Spieler "+args[1]+" wurde hinzugefÃ¼gt!");
+						Player t = Bukkit.getPlayer(args[1]);
+						if(t != null) {
+							t.setCollidable(true);
+							t.sendMessage(ChatColor.GREEN+"Herzlichen GlÃ¼ckwunsch! Du wurdest verifiziert!");
+							t.sendMessage(ChatColor.GOLD+"Bitte beachte, dass griefen und hacking verboten ist!! Solltest du griefen oder hacken wirst du umgehend gebannt!");
+						}
+							
 					}else if(args[0].equalsIgnoreCase("remove")) {
 						Main.verified.remove(args[1]);
 						pl.getConfig().set("allowed", Main.verified);
 						pl.saveConfig();
-						
+						Player t = Bukkit.getPlayer(args[1]);
+						if(t != null)
+							t.setCollidable(false);
 						p.sendMessage("Spieler "+args[1]+" wurde entfernt!");
 					}else {
 						p.sendMessage("Syntax: /verify <list/add/remove> [player]");

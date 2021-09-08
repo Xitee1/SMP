@@ -23,6 +23,7 @@ public class Main extends JavaPlugin{
 		getCommand("verify").setExecutor(new VerifyCommand());
 		PluginManager pm = Bukkit.getPluginManager();
 		pm.registerEvents(new InteractListener(), this);
+		pm.registerEvents(new JoinQuitListener(), this);
 		
 		pl.reloadConfig();
 		pl.getConfig().options().copyDefaults(true);
@@ -42,6 +43,8 @@ public class Main extends JavaPlugin{
 		allowedBlocks.add(Material.SPRUCE_PRESSURE_PLATE);
 		allowedBlocks.add(Material.STONE_PRESSURE_PLATE);
 		allowedBlocks.add(Material.WARPED_PRESSURE_PLATE);
+		
+		allowedBlocks.add(Material.SPRUCE_BUTTON);
 		
 		allowedBlocks.add(Material.CHEST);
 		allowedBlocks.add(Material.HOPPER);

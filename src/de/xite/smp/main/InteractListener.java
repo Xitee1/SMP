@@ -1,5 +1,6 @@
 package de.xite.smp.main;
 
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -7,9 +8,11 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.spigotmc.event.entity.EntityMountEvent;
 
 import de.xite.smp.utils.Actionbar;
 import net.md_5.bungee.api.ChatColor;
@@ -45,12 +48,41 @@ public class InteractListener implements Listener{
 	public void onInteract(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
 		if(!Main.verified.contains(p.getName())) {
-			if(!Main.allowedBlocks.contains(e.getClickedBlock().getType())) {
+			if(e.getClickedBlock() != null && !Main.allowedBlocks.contains(e.getClickedBlock().getType())) {
 				e.setCancelled(true);
 				sendErrorMessage(p);
 			}
 		}
 	}
+	@EventHandler
+	public void onRide(EntityMountEvent e) {
+		if(e.getEntity() instanceof Player) {
+			Player p = (Player) e.getEntity();
+			if(!Main.verified.contains(p.getName())) {
+				if(e.getMount().getType() == EntityType.LLAMA ||
+					e.getMount().getType() == EntityType.HORSE ||
+					e.getMount().getType() == EntityType.SKELETON_HORSE ||
+					e.getMount().getType() == EntityType.DONKEY ||
+					e.getMount().getType() == EntityType.STRIDER ||
+					e.getMount().getType() == EntityType.PIG) {
+					
+					e.setCancelled(true);
+					sendErrorMessage(p);
+				}
+			}	
+		}
+	}
+	
+	@EventHandler
+	public void onFoodChange(FoodLevelChangeEvent e) {
+		if(e.getEntity() instanceof Player) {
+			Player p = (Player) e.getEntity();
+			if(!Main.verified.contains(p.getName())) {
+				e.setCancelled(true);
+			}
+		}
+	}
+	
 	@EventHandler
 	public void onInventoryInteract(InventoryClickEvent e) {
 		if(e.getWhoClicked() instanceof Player) {
