@@ -1,4 +1,4 @@
-package de.xite.smp.main;
+package de.xite.smp.verify;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -6,6 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import de.xite.smp.main.Main;
 import net.md_5.bungee.api.ChatColor;
 
 public class VerifyCommand implements CommandExecutor{

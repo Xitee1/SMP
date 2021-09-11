@@ -1,0 +1,48 @@
+##################################################
+### SMP - The SMP Plugin from Xite SMP         ###
+###                                            ###
+### Source Code: https://github.com/Xitee1/SMP ###
+##################################################
+
+##############
+### Blocks ###
+##############
+nonVerified:
+  - ACACIA_PRESSURE_PLATE
+  - BIRCH_PRESSURE_PLATE
+  - CRIMSON_PRESSURE_PLATE
+  - DARK_OAK_PRESSURE_PLATE
+  - HEAVY_WEIGHTED_PRESSURE_PLATE
+  - JUNGLE_PRESSURE_PLATE
+  - LIGHT_WEIGHTED_PRESSURE_PLATE
+  - OAK_PRESSURE_PLATE
+  - POLISHED_BLACKSTONE_PRESSURE_PLATE
+  - SPRUCE_PRESSURE_PLATE
+  - STONE_PRESSURE_PLATE
+  - WARPED_PRESSURE_PLATE	
+  - SPRUCE_BUTTON	
+  - CHEST
+  - HOPPER
+  - CHEST_MINECART
+  - HOPPER_MINECART
+  - FURNACE_MINECART
+  - ACACIA_DOOR
+  - BIRCH_DOOR
+  - CRIMSON_DOOR
+  - DARK_OAK_DOOR
+  - JUNGLE_DOOR
+  - OAK_DOOR
+  - SPRUCE_DOOR
+  - WARPED_DOOR
+trustedBlackList:
+  - LAVA_BUCKET
+  - FLINT_AND_STEEL
+
+###############
+### Players ###
+###############
+allowed:
+  - Xitecraft
+  
+trusted:
+  - SomeTrustedGuy

@@ -1,4 +1,4 @@
-package de.xite.smp.main;
+package de.xite.smp.verify;
 
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -14,6 +14,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
 
+import de.xite.smp.main.Main;
 import de.xite.smp.utils.Actionbar;
 import net.md_5.bungee.api.ChatColor;
 
