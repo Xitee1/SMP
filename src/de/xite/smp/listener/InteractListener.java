@@ -1,5 +1,9 @@
-package de.xite.smp.verify;
+package de.xite.smp.listener;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.bukkit.Chunk;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,6 +20,7 @@ import org.spigotmc.event.entity.EntityMountEvent;
 
 import de.xite.smp.main.Main;
 import de.xite.smp.utils.Actionbar;
+import de.xite.smp.utils.MySQL;
 import net.md_5.bungee.api.ChatColor;
 
 public class InteractListener implements Listener{
@@ -49,10 +54,17 @@ public class InteractListener implements Listener{
 	public void onInteract(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
 		if(!Main.verified.contains(p.getName())) {
-			if(e.getClickedBlock() != null && !Main.allowedBlocks.contains(e.getClickedBlock().getType())) {
+			if(e.getClickedBlock() != null && !Main.nonVerified.contains(e.getClickedBlock().getType())) {
 				e.setCancelled(true);
 				sendErrorMessage(p);
-			}
+			}else {
+				Chunk chunk = p.getLocation().getChunk();
+				if(chunk != null) {
+					SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+					MySQL.update("UPDATE UPDATE `" + MySQL.prefix + "chunks` SET `version_modified`='" + Main.MCVersion + "', `modified_date`='" + sdf.format(new Date()) + "' " + 
+							"WHERE `loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() + "';");
+		        } 
+			}  
 		}
 	}
 	@EventHandler
