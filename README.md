@@ -1,2 +1,2 @@
 # SMP
-Das SMP Plugin von meinem SMP Minecraft Server (play.xitecraft.de)
+Das SMP Plugin von meinem Minecraft Server (play.xitecraft.de)
