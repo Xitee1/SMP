@@ -3,6 +3,7 @@ package de.xite.smp.listener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -59,11 +60,16 @@ public class InteractListener implements Listener{
 				sendErrorMessage(p);
 			}else {
 				Chunk chunk = p.getLocation().getChunk();
-				if(chunk != null) {
-					SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-					MySQL.update("UPDATE UPDATE `" + MySQL.prefix + "chunks` SET `version_modified`='" + Main.MCVersion + "', `modified_date`='" + sdf.format(new Date()) + "' " + 
-							"WHERE `loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() + "';");
-		        } 
+				Bukkit.getScheduler().runTaskAsynchronously(Main.pl, new Runnable() {
+					@Override
+					public void run() {
+						if(chunk != null) {
+							SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+							MySQL.update("UPDATE `" + MySQL.prefix + "chunks` SET `version_modified`='" + Main.MCVersion + "', `modified_date`='" + sdf.format(new Date()) + "' " + 
+									"WHERE `loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() + "';");
+				        }
+					}
+				});
 			}  
 		}
 	}

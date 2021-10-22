@@ -1,5 +1,6 @@
 package de.xite.smp.listener;
 
+import de.xite.smp.commands.ChunkInfoCommand;
 import de.xite.smp.main.Main;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
@@ -15,12 +16,11 @@ public class JoinQuitListener implements Listener {
 		if(!Main.verified.contains(p.getName()))
 			p.setCollidable(false);
 		e.setJoinMessage(ChatColor.YELLOW + p.getName() + " hat das Spiel betreten.");
+		ChunkInfoCommand.sendChunkInfoToPlayer(p);
 	}
 	@EventHandler
 	public void onQuit(PlayerQuitEvent e) {
 		Player p = e.getPlayer();
-		if(MoveListener.lastChunk.containsKey(p))
-			MoveListener.lastChunk.remove(p);
 		e.setQuitMessage(ChatColor.YELLOW + p.getName() + " hat das Spiel verlassen.");
 	}
 }

@@ -12,6 +12,7 @@ import de.xite.smp.commands.ChunkInfoCommand;
 import de.xite.smp.commands.VerifyCommand;
 import de.xite.smp.listener.ChunkListener;
 import de.xite.smp.listener.InteractListener;
+import de.xite.smp.listener.JoinQuitListener;
 import de.xite.smp.listener.MoveListener;
 import de.xite.smp.utils.Actionbar;
 import de.xite.smp.utils.MySQL;
