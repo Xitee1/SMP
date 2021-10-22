@@ -1,5 +1,6 @@
 package de.xite.smp.listener;
 
+import de.xite.smp.commands.BlockInfoCommand;
 import de.xite.smp.commands.ChunkInfoCommand;
 import de.xite.smp.main.Main;
 import net.md_5.bungee.api.ChatColor;
@@ -22,5 +23,7 @@ public class JoinQuitListener implements Listener {
 	public void onQuit(PlayerQuitEvent e) {
 		Player p = e.getPlayer();
 		e.setQuitMessage(ChatColor.YELLOW + p.getName() + " hat das Spiel verlassen.");
+		if(BlockInfoCommand.fastLookupThrottle.containsKey(p))
+			BlockInfoCommand.fastLookupThrottle.remove(p);
 	}
 }

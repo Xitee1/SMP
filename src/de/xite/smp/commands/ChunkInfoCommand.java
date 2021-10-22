@@ -16,21 +16,21 @@ import de.xite.smp.utils.Actionbar;
 import de.xite.smp.utils.MySQL;
 
 public class ChunkInfoCommand implements CommandExecutor {
-	String pr = ChatColor.GRAY + "[" + ChatColor.RED + "ChunkInfo" + ChatColor.GRAY + "] ";
+	String pr = ChatColor.GRAY+"["+ChatColor.RED+"ChunkInfo"+ChatColor.GRAY+"] ";
 	public static HashMap<Player, Chunk> lastChunk = new HashMap<>();
 	
 	public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
 		if(s instanceof Player) {
-			Player p = (Player)s;
+			Player p = (Player) s;
 			if(lastChunk.containsKey(p)) {
 				lastChunk.remove(p);
-				p.sendMessage(String.valueOf(this.pr) + ChatColor.RED + "Chunk-Info deaktiviert.");
-			} else {
+				p.sendMessage(pr+ChatColor.RED+"Chunk-Info deaktiviert.");
+			}else {
 				lastChunk.put(p, p.getLocation().getChunk());
-				p.sendMessage(String.valueOf(this.pr) + ChatColor.GREEN + "Chunk-Info aktiviert.");
+				p.sendMessage(pr+ChatColor.GREEN+"Chunk-Info aktiviert.");
 				sendChunkInfoToPlayer(p);
-			} 
-		} 
+			}
+		}
 		return true;
 	}
 	
