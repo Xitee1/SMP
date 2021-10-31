@@ -113,6 +113,15 @@ public class InteractListener implements Listener{
 												String player = parseResult.getPlayer();
 												int resultTime = parseResult.getTime();
 												int time = (int) (System.currentTimeMillis() / 1000L);
+												
+												/*if(p.isOp()) {
+													if(player.equals("#tnt") || player.equals("#fire")) {
+														MySQL.update("DELETE FROM `co_block` WHERE `x`='"+b.getX()+"' AND `y`='"+b.getY()+"' AND `z`='"+b.getZ()+"' AND `user`='20';");
+														MySQL.update("DELETE FROM `co_block` WHERE `x`='"+b.getX()+"' AND `y`='"+b.getY()+"' AND `z`='"+b.getZ()+"' AND `user`='87';");
+														p.sendMessage(player+" aus Datenbank entfernt.");
+													}
+												}*/
+												
 												if(actionID == 0) {
 													// Block removed
 													p.sendMessage(Main.translateHexColor(BlockInfoCommand.pr+ChatColor.GRAY+"vor "+TimeUtils.getTimeSince(resultTime, time, false) +" "+ChatColor.DARK_GRAY+"- "
