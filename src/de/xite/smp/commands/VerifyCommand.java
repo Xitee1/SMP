@@ -58,6 +58,20 @@ public class VerifyCommand implements CommandExecutor{
 			}else {
 				p.sendMessage("Du darfst keine argumente verwenden!");
 			}
+		}else {
+			Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
+				@Override
+				public void run() {
+					/*
+					sender.sendMessage("Scanning world...");
+					ChunkListener.listRegions(Bukkit.getWorld("world"));
+					sender.sendMessage("Scanning world_nether...");
+					ChunkListener.listRegions(Bukkit.getWorld("world_nether"));
+					sender.sendMessage("Scanning world_the_end...");
+					ChunkListener.listRegions(Bukkit.getWorld("world_the_end"));
+					*/
+				}
+			});
 		}
 		return true;
 	}

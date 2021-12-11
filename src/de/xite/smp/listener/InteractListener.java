@@ -66,19 +66,22 @@ public class InteractListener implements Listener{
 			if(e.getClickedBlock() != null && !Main.nonVerified.contains(e.getClickedBlock().getType())) {
 				e.setCancelled(true);
 				sendErrorMessage(p);
+				return;
 			}
 		}else if(!BlockInfoCommand.players.contains(p)) {
-			Chunk chunk = p.getLocation().getChunk();
-			Bukkit.getScheduler().runTaskAsynchronously(Main.pl, new Runnable() {
-				@Override
-				public void run() {
-					if(chunk != null) {
-						SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-						MySQL.update("UPDATE `" + MySQL.prefix + "chunks` SET `version_modified`='" + Main.MCVersion + "', `date_modified`='" + sdf.format(new Date()) + "' " + 
-								"WHERE `loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() + "';");
-			        }
-				}
-			});
+			if(e.getAction() == Action.LEFT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+				Chunk chunk = p.getLocation().getChunk();
+				Bukkit.getScheduler().runTaskAsynchronously(Main.pl, new Runnable() {
+					@Override
+					public void run() {
+						if(chunk != null) {
+							SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+							MySQL.update("UPDATE `" + MySQL.prefix + "chunks` SET `version_modified`='" + Main.MCVersion + "', `date_modified`='" + sdf.format(new Date()) + "' " + 
+									"WHERE `world`='"+chunk.getWorld().getName()+"' AND `loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() + "';");
+				        }
+					}
+				});
+			}
 		}
 		if(BlockInfoCommand.players.contains(p)) {
 			e.setCancelled(true);

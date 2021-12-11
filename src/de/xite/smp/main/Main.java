@@ -27,7 +27,7 @@ import net.md_5.bungee.api.ChatColor;
 public class Main extends JavaPlugin{
 	public static Main pl;
 	public static String MCVersion;
-	  
+	
 	public static List<String> verified = new ArrayList<>(); // Allowed players (Fully trusted, can do everything)
 	public static List<String> trusted = new ArrayList<>(); // Trusted players (At least one verified player has to be online and block blacklist)
 	
@@ -69,7 +69,7 @@ public class Main extends JavaPlugin{
 			nonVerified.add(Material.getMaterial(s));
 		for(String s : pl.getConfig().getStringList("trustedBlacklist"))
 			trustedBlacklist.add(Material.getMaterial(s));
-		
+
 	}
 	
 	public static CoreProtectAPI getCoreProtect() {

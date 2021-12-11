@@ -26,7 +26,7 @@ public class ChunkInfoCommand implements CommandExecutor {
 				lastChunk.remove(p);
 				p.sendMessage(pr+ChatColor.RED+"Chunk-Info deaktiviert.");
 			}else {
-				lastChunk.put(p, p.getLocation().getChunk());
+				lastChunk.put(p, null);
 				p.sendMessage(pr+ChatColor.GREEN+"Chunk-Info aktiviert.");
 				sendChunkInfoToPlayer(p);
 			}
@@ -35,18 +35,22 @@ public class ChunkInfoCommand implements CommandExecutor {
 	}
 	
 	public static void sendChunkInfoToPlayer(Player p) {
-		Chunk chunk = p.getLocation().getChunk();
 		if(lastChunk.containsKey(p)) {
+			Chunk chunk = p.getLocation().getChunk();
 			Bukkit.getScheduler().runTaskAsynchronously(Main.pl, new Runnable() {
 				@Override
 				public void run() {
 					if(lastChunk.get(p) != chunk) {
 						lastChunk.replace(p, chunk);
-						if(MySQL.checkExists(MySQL.prefix+"chunks", "id", "`loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() + "'")) {
-							String date_created = MySQL.getString(MySQL.prefix+"chunks", "date_created", "`loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() + "'");
-							String version_created = MySQL.getString(MySQL.prefix+"chunks", "version_created", "`loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() + "'");
-							String date_modified = MySQL.getString(MySQL.prefix+"chunks", "date_modified", "`loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() + "'");
-							String version_modified = MySQL.getString(MySQL.prefix+"chunks", "version_modified", "`loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() + "'");
+						if(MySQL.checkExists(MySQL.prefix+"chunks", "id", "`world`='"+chunk.getWorld().getName()+"' AND `loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() + "'")) {
+							String date_created = MySQL.getString(MySQL.prefix+"chunks", "date_created",
+									"`world`='"+p.getLocation().getWorld().getName()+"' AND `loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() + "'");
+							String version_created = MySQL.getString(MySQL.prefix+"chunks", "version_created",
+									"`world`='"+p.getLocation().getWorld().getName()+"' AND `loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() + "'");
+							String date_modified = MySQL.getString(MySQL.prefix+"chunks", "date_modified",
+									"`world`='"+p.getLocation().getWorld().getName()+"' AND `loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() + "'");
+							String version_modified = MySQL.getString(MySQL.prefix+"chunks", "version_modified",
+									"`world`='"+p.getLocation().getWorld().getName()+"' AND `loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() + "'");
 							if(date_modified.equals("none") && version_modified.equals("none")) {
 								Actionbar.sendActionBar(p, ChatColor.GREEN+"ChunkInfo "+ChatColor.DARK_GRAY + "| "+ChatColor.GRAY+ 
 										"Erstellt am "+ChatColor.AQUA+date_created+ChatColor.GRAY+" mit der Version "+ChatColor.AQUA+version_created+ChatColor.DARK_GRAY+" | "+ChatColor.GRAY+ 
@@ -56,7 +60,6 @@ public class ChunkInfoCommand implements CommandExecutor {
 										"Erstellt am "+ChatColor.AQUA+date_created+ChatColor.GRAY+" mit der Version "+ChatColor.AQUA+version_created+ChatColor.DARK_GRAY+" | "+ChatColor.GRAY+
 										"Bearbeitet am "+ChatColor.AQUA+date_modified+ChatColor.GRAY+" mit der Version "+ChatColor.AQUA+version_modified, 60*60);
 							}
-							
 						}else {
 							Actionbar.sendActionBar(p, ChatColor.GREEN+"ChunkInfo "+ChatColor.DARK_GRAY+"| "+ChatColor.RED+"Keine informationen für diesen Chunk.", 60*60);
 						} 

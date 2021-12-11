@@ -6,8 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import de.xite.smp.main.Main;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.Component;
 
 public class Actionbar {
 	static Main pl = Main.pl;
@@ -16,10 +15,10 @@ public class Actionbar {
     static HashMap<Player, String> message = new HashMap<Player, String>();
     
     public static void sendActionBar(Player p, String msg) {
-    	p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(msg));
+    	p.sendActionBar(Component.text(msg));
     }
     public static void sendActionBar(Player p, String msg, int seconds) {
-    	p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(msg));
+    	p.sendActionBar(Component.text(msg));
     	message.put(p, msg);
     	counter.put(p, seconds);
     }

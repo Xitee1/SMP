@@ -1,5 +1,5 @@
 ##################################################
-### SMP - The SMP Plugin from Xite SMP         ###
+### SMP - Das SMP Plugin von der XiteSMP       ###
 ###                                            ###
 ### Source Code: https://github.com/Xitee1/SMP ###
 ##################################################
@@ -7,13 +7,13 @@ mysql:
   host: '127.0.0.1'
   port: 3306
   user: 'admin'
-  password: 'YourPassword'
+  password: 'DeinPasswort'
   database: 'minecraft'
   table-prefix: 'smp_'
   useSSL: true
   
 ##############
-### Blocks ###
+### Blöcke ###
 ##############
 nonVerified:
   - ACACIA_PRESSURE_PLATE
@@ -47,7 +47,7 @@ trustedBlackList:
   - FLINT_AND_STEEL
 
 ###############
-### Players ###
+### Spieler ###
 ###############
 allowed:
   - Xitecraft
