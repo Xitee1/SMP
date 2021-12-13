@@ -18,8 +18,8 @@ import de.xite.smp.listener.ChunkListener;
 import de.xite.smp.listener.InteractListener;
 import de.xite.smp.listener.JoinQuitListener;
 import de.xite.smp.listener.MoveListener;
+import de.xite.smp.sql.MySQL;
 import de.xite.smp.utils.Actionbar;
-import de.xite.smp.utils.MySQL;
 import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
 import net.md_5.bungee.api.ChatColor;
@@ -44,6 +44,7 @@ public class Main extends JavaPlugin{
 		pl.getConfig().options().copyDefaults(true);
 		pl.saveDefaultConfig();
 		Actionbar.start();
+		ChunkInfoCommand.chunkInfoUpdater();
 		MySQL.connect();
 		
 		String vstring = Bukkit.getBukkitVersion();
@@ -71,7 +72,10 @@ public class Main extends JavaPlugin{
 			trustedBlacklist.add(Material.getMaterial(s));
 
 	}
-	
+	@Override
+	public void onDisable() {
+		MySQL.executeAllWaitingUpdates();
+	}
 	public static CoreProtectAPI getCoreProtect() {
 		Plugin plugin = pl.getServer().getPluginManager().getPlugin("CoreProtect");
 		// Check that CoreProtect is loaded

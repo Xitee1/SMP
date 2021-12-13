@@ -22,6 +22,12 @@ public class Actionbar {
     	message.put(p, msg);
     	counter.put(p, seconds);
     }
+    public static void removeActionBar(Player p) {
+    	if(counter.containsKey(p))
+    		counter.remove(p);
+    	if(message.containsKey(p))
+    		message.remove(p);
+    }
     public static void start() {
     	pl.getLogger().info("ActionBar manager started!");
     	Bukkit.getScheduler().scheduleSyncRepeatingTask(pl, new Runnable() {

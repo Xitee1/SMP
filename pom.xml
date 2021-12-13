@@ -18,14 +18,19 @@
    	<dependency>
    	  <groupId>io.papermc.paper</groupId>
     	<artifactId>paper-api</artifactId>
-   		<version>1.18-R0.1-SNAPSHOT</version>
+   		<version>1.18.1-R0.1-SNAPSHOT</version>
    		<scope>provided</scope>
 	</dependency>
 	<dependency>
-    <groupId>net.coreprotect</groupId>
-    <artifactId>coreprotect</artifactId>
-    <version>20.0</version>
-    <scope>provided</scope>
+   		<groupId>net.coreprotect</groupId>
+    	<artifactId>coreprotect</artifactId>
+  		<version>20.0</version>
+    	<scope>provided</scope>
+	</dependency>
+	<dependency>
+    	<groupId>com.zaxxer</groupId>
+   		<artifactId>HikariCP</artifactId>
+   		<version>3.4.5</version>
 	</dependency>
   </dependencies>
   <build>
@@ -46,6 +51,22 @@
         <configuration>
           <release>11</release>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.4</version>
+        <configuration>
+          <!-- put your configurations here -->
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
 

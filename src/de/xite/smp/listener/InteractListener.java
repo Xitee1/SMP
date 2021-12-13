@@ -25,8 +25,8 @@ import org.spigotmc.event.entity.EntityMountEvent;
 
 import de.xite.smp.commands.BlockInfoCommand;
 import de.xite.smp.main.Main;
+import de.xite.smp.sql.MySQL;
 import de.xite.smp.utils.Actionbar;
-import de.xite.smp.utils.MySQL;
 import de.xite.smp.utils.TimeUtils;
 import net.coreprotect.CoreProtectAPI;
 import net.coreprotect.CoreProtectAPI.ParseResult;
@@ -39,7 +39,9 @@ public class InteractListener implements Listener{
 		if(!Main.verified.contains(p.getName())) {
 			e.setCancelled(true);
 			sendErrorMessage(p);
+			return;
 		}
+		registerChunkInteraction(p);
 	}
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent e) {
@@ -47,7 +49,9 @@ public class InteractListener implements Listener{
 		if(!Main.verified.contains(p.getName())) {
 			e.setCancelled(true);
 			sendErrorMessage(p);
+			return;
 		}
+		registerChunkInteraction(p);
 	}
 	@EventHandler
 	public void onDamage(EntityDamageByEntityEvent e) {
@@ -67,20 +71,6 @@ public class InteractListener implements Listener{
 				e.setCancelled(true);
 				sendErrorMessage(p);
 				return;
-			}
-		}else if(!BlockInfoCommand.players.contains(p)) {
-			if(e.getAction() == Action.LEFT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				Chunk chunk = p.getLocation().getChunk();
-				Bukkit.getScheduler().runTaskAsynchronously(Main.pl, new Runnable() {
-					@Override
-					public void run() {
-						if(chunk != null) {
-							SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-							MySQL.update("UPDATE `" + MySQL.prefix + "chunks` SET `version_modified`='" + Main.MCVersion + "', `date_modified`='" + sdf.format(new Date()) + "' " + 
-									"WHERE `world`='"+chunk.getWorld().getName()+"' AND `loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() + "';");
-				        }
-					}
-				});
 			}
 		}
 		if(BlockInfoCommand.players.contains(p)) {
@@ -205,5 +195,15 @@ public class InteractListener implements Listener{
 	
 	public void sendErrorMessage(Player p) {
 		Actionbar.sendActionBar(p, ChatColor.RED+"Dein Account wurde noch nicht verifiziert! "+ChatColor.AQUA+"/verify "+ChatColor.RED+"für mehr infos.", 5);
+	}
+	
+	
+	public void registerChunkInteraction(Player p) {
+		if(!BlockInfoCommand.players.contains(p)) {
+			Chunk chunk = p.getLocation().getChunk();
+			SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+			MySQL.waitingUpdates.add("UPDATE `" + MySQL.prefix + "chunks` SET `version_modified`='" + Main.MCVersion + "', `date_modified`='" + sdf.format(new Date()) + "' " + 
+									"WHERE `world`='"+chunk.getWorld().getName()+"' AND `loc_x`='"+chunk.getX()+"' AND `loc_z`='"+chunk.getZ()+"';");
+		}
 	}
 }
