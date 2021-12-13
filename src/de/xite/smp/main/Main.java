@@ -1,6 +1,10 @@
 package de.xite.smp.main;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,15 +15,26 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.google.common.io.Files;
+
 import de.xite.smp.commands.BlockInfoCommand;
 import de.xite.smp.commands.ChunkInfoCommand;
-import de.xite.smp.commands.VerifyCommand;
+import de.xite.smp.commands.HelpCommand;
+import de.xite.smp.commands.PlayTimeCommand;
+import de.xite.smp.commands.TrustLevelCommand;
+import de.xite.smp.listener.BlockBreakListener;
+import de.xite.smp.listener.BlockPlaceListener;
 import de.xite.smp.listener.ChunkListener;
+import de.xite.smp.listener.EntityDamageListener;
+import de.xite.smp.listener.EntityMountListener;
+import de.xite.smp.listener.EntityTargetListener;
+import de.xite.smp.listener.FoodChangeListener;
 import de.xite.smp.listener.InteractListener;
 import de.xite.smp.listener.JoinQuitListener;
 import de.xite.smp.listener.MoveListener;
 import de.xite.smp.sql.MySQL;
 import de.xite.smp.utils.Actionbar;
+import de.xite.smp.utils.PlayTime;
 import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
 import net.md_5.bungee.api.ChatColor;
@@ -28,11 +43,8 @@ public class Main extends JavaPlugin{
 	public static Main pl;
 	public static String MCVersion;
 	
-	public static List<String> verified = new ArrayList<>(); // Allowed players (Fully trusted, can do everything)
-	public static List<String> trusted = new ArrayList<>(); // Trusted players (At least one verified player has to be online and block blacklist)
-	
-	public static List<Material> nonVerified = new ArrayList<>(); // Allowed blocks for non verified
-	public static List<Material> trustedBlacklist = new ArrayList<>(); // Blacklisted blocks for trusted, but not verified players
+	public static List<Material> interactAllowedTrustLevel1 = new ArrayList<>(); // Allowed blocks for TrustLevel 1
+	public static List<Material> dangerousBlocks = new ArrayList<>(); // Disallowed blocks for TrustLevel online needed
 	
 	public static String hexColorBegin = "#", hexColorEnd = ""; // hex color Syntax
 	@Override
@@ -44,37 +56,72 @@ public class Main extends JavaPlugin{
 		pl.getConfig().options().copyDefaults(true);
 		pl.saveDefaultConfig();
 		Actionbar.start();
+		PlayTime.startPlaytimeCounter();
 		ChunkInfoCommand.chunkInfoUpdater();
 		MySQL.connect();
 		
 		String vstring = Bukkit.getBukkitVersion();
 		MCVersion = vstring.substring(0, vstring.lastIndexOf("-R")).replace("_", ".");
 		
-		// Register commands and listener
-		getCommand("verify").setExecutor(new VerifyCommand());
+		// --- Commands --- //
+		
+		// TrustLevel
+		getCommand("trustlevel").setExecutor(new TrustLevelCommand());
+		
+		// ChunkInfo
 		getCommand("chunkinfo").setExecutor(new ChunkInfoCommand());
 		getCommand("ci").setExecutor(new ChunkInfoCommand());
+		
+		// Blockinfo
 		getCommand("blockinfo").setExecutor(new BlockInfoCommand());
 		getCommand("bi").setExecutor(new BlockInfoCommand());
+		
+		// Spielzeit
+		getCommand("spielzeit").setExecutor(new PlayTimeCommand());
+		getCommand("playtime").setExecutor(new PlayTimeCommand());
+		
+		// Hilfe
+		getCommand("hilfe").setExecutor(new HelpCommand());
+		getCommand("help").setExecutor(new HelpCommand());
+		
+		// --- Events --- //
 		PluginManager pm = Bukkit.getPluginManager();
+		
+		pm.registerEvents(new BlockBreakListener(), this);
+		pm.registerEvents(new BlockPlaceListener(), this);
+		pm.registerEvents(new ChunkListener(), this);
+		pm.registerEvents(new EntityDamageListener(), this);
+		pm.registerEvents(new EntityMountListener(), this);
+		pm.registerEvents(new EntityTargetListener(), this);
+		pm.registerEvents(new FoodChangeListener(), this);
 		pm.registerEvents(new InteractListener(), this);
 		pm.registerEvents(new JoinQuitListener(), this);
-		pm.registerEvents(new ChunkListener(), this);
 		pm.registerEvents(new MoveListener(), this);
 		
-		// Load config
-		verified = pl.getConfig().getStringList("allowed"); // Load verified players
-		trusted = pl.getConfig().getStringList("allowed");
-		
-		for(String s : pl.getConfig().getStringList("nonVerified"))
-			nonVerified.add(Material.getMaterial(s));
-		for(String s : pl.getConfig().getStringList("trustedBlacklist"))
-			trustedBlacklist.add(Material.getMaterial(s));
+		for(String s : pl.getConfig().getStringList("interactAllowedTrustLevel1"))
+			interactAllowedTrustLevel1.add(Material.getMaterial(s));
+		for(String s : pl.getConfig().getStringList("dangerousBlocks"))
+			dangerousBlocks.add(Material.getMaterial(s));
 
 	}
 	@Override
 	public void onDisable() {
 		MySQL.executeAllWaitingUpdates();
+		
+		
+		// Prevent the hoster from deleting the logs
+		pl.getLogger().info("Moving logs..");
+		File logFile = new File("logs/latest.log");
+		File destinationFolder = new File("server_logs");
+		if(logFile.exists()) {
+			SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy__HH_mm");
+			try {
+				Files.copy(logFile, new File(destinationFolder.getAbsolutePath()+"/"+sdf.format(new Date())+".log"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		pl.getLogger().info("Logs moved!");
 	}
 	public static CoreProtectAPI getCoreProtect() {
 		Plugin plugin = pl.getServer().getPluginManager().getPlugin("CoreProtect");

@@ -5,8 +5,12 @@ main: de.xite.smp.main.Main
 depend: [CoreProtect]
 api-version: 1.13
 commands:
-  verify:
+  trustlevel:
   chunkinfo:
   ci:
   blockinfo:
   bi:
+  spielzeit:
+  playtime:
+  hilfe:
+  help:

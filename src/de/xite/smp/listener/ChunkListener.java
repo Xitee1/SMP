@@ -3,15 +3,10 @@ package de.xite.smp.listener;
 import de.xite.smp.main.Main;
 import de.xite.smp.sql.MySQL;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.bukkit.Chunk;
-import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -97,7 +92,6 @@ public class ChunkListener implements Listener {
         }
         return false;
 	}
-	*/
 	
 	
 	
@@ -172,4 +166,5 @@ public class ChunkListener implements Listener {
     	
     	return i;
     }
+    */
 }

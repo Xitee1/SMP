@@ -5,8 +5,33 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class TimeUtils {
-	// Credits: CoreProtect - https://github.com/PlayPro/CoreProtect/blob/a61df070e66e803fe7eb74ea4c21d5a08cf30667/src/main/java/net/coreprotect/utility/Util.java#L199
-	public static String getTimeSince(int logTime, int currentTime, boolean component) {
+	public static String convertPlayTimeFromSecondsToString(int playtime) {
+		int hours = playtime / 3600;
+		int minutes = (playtime % 3600) / 60;
+		int seconds = playtime % 60;
+		
+		String s = "";
+		if(seconds == 1) {
+			s += seconds + " Sekunde, ";
+		}else
+			s += seconds + " Sekunden, ";
+		
+		if(minutes == 1) {
+			s += minutes + " Minute, ";
+		}else
+			s += minutes + " Minuten, ";
+		
+		if(hours == 1) {
+			s += hours + " Stunde";
+		}else
+			s += hours + " Sekunde";
+		
+		return s;
+	}
+	
+	
+	// Credits: CoreProtect - https://github.com/PlayPro/CoreProtect/blob/master/src/main/java/net/coreprotect/utility/Util.java#L199
+	public static String getTimeSince(long logTime, long currentTime, boolean component) {
 		StringBuilder message = new StringBuilder();
 		double timeSince = currentTime - (logTime + 0.00);
 		

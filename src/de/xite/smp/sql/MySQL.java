@@ -66,7 +66,7 @@ public class MySQL {
 			        config.setUsername(username);
 			        config.setPassword(password);
 			        config.addDataSourceProperty("characterEncoding", "UTF-8");
-			        config.addDataSourceProperty("connectionTimeout", "10000");
+			        config.addDataSourceProperty("connectionTimeout", "28800");
 			        /* https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration */
 			        /* https://cdn.oreillystatic.com/en/assets/1/event/21/Connector_J%20Performance%20Gems%20Presentation.pdf */
 			        config.addDataSourceProperty("cachePrepStmts", "true");
@@ -85,17 +85,8 @@ public class MySQL {
 			        	pl.getLogger().info("Konnte keine Verbindung zu MySQL herstellen!");
 			        	return false;
 			        }
-					
-					update("CREATE TABLE IF NOT EXISTS `" + prefix + "chunks` " + 
-							"(`id` INT NOT NULL AUTO_INCREMENT," +
-							"`world` VARCHAR(255)," +
-							"`loc_x` INT(255) NOT NULL," +
-							"`loc_z` INT(255) NOT NULL," + 
-							"`version_created` VARCHAR(255) NOT NULL," + 
-							"`date_created` VARCHAR(255) NOT NULL," + 
-							"`version_modified` VARCHAR(255) NOT NULL," + 
-							"`date_modified` VARCHAR(255) NOT NULL," + 
-							"PRIMARY KEY (`id`)) ENGINE = InnoDB;");
+			        
+					createTables();
 					startMySQLHandler();
 					pl.getLogger().info("MySQL verbunden!");
 				}
@@ -155,10 +146,10 @@ public class MySQL {
 		isUpdating = true;
 		if(!waitingUpdates.isEmpty()) {
 			pl.getLogger().info("Executing all waiting updates..");
-			Statement statement;
+			Statement st;
 			try {
 				pl.getLogger().info("Creating statement..");
-				statement = getConnection().createStatement();
+				st = getConnection().createStatement();
 				pl.getLogger().info("Statement created!");
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -172,7 +163,7 @@ public class MySQL {
 			for(String s : list) {
 				try {
 					pl.getLogger().info("Current update: "+s);
-					statement.executeUpdate(s);
+					st.executeUpdate(s);
 					waitingUpdates.remove(s);
 				} catch (SQLException e) {
 					pl.getLogger().info("Could not update! (Connection broken)");
@@ -181,7 +172,7 @@ public class MySQL {
 			}
 			
 			try {
-				statement.close();
+				st.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -192,9 +183,9 @@ public class MySQL {
   	
 	public static boolean update(String qry) {
 		try {
-			Statement statement = getConnection().createStatement();
-			statement.executeUpdate(qry);
-			statement.close();
+			Statement st = getConnection().createStatement();
+			st.executeUpdate(qry);
+			st.close();
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -206,8 +197,8 @@ public class MySQL {
 	}
 	public static ResultSet query(String qry) {
 		try {
-			Statement statement = getConnection().createStatement();
-			return statement.executeQuery(qry);
+			Statement st = getConnection().createStatement();
+			return st.executeQuery(qry);
 		} catch (SQLException e) {
 			pl.getLogger().severe("There was an error whilst executing query: " + qry);
 			pl.getLogger().severe("Error:");
@@ -238,95 +229,154 @@ public class MySQL {
 		} 
 		return true;*/
 	}
-	
+	private static void createTables() {
+		try {
+			Statement st = getConnection().createStatement();
+			// chunk table
+			st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + prefix + "chunks` " + 
+					"(`id` INT NOT NULL AUTO_INCREMENT," +
+					"`world` VARCHAR(255) NOT NULL," +
+					"`loc_x` INT NOT NULL," +
+					"`loc_z` INT NOT NULL," + 
+					"`version_created` VARCHAR(255) NOT NULL," + 
+					"`date_created` VARCHAR(255) NOT NULL," + 
+					"`version_modified` VARCHAR(255) NOT NULL," + 
+					"`date_modified` VARCHAR(255) NOT NULL," + 
+					"PRIMARY KEY (`id`)) ENGINE = InnoDB;");
+			
+			st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + prefix + "players` " + 
+					"(`id` INT NOT NULL AUTO_INCREMENT," +
+					"`uuid` VARCHAR(50) NOT NULL," +
+					"`name` VARCHAR(16) NOT NULL," +
+					"`trustlevel` INT NOT NULL," +
+					"`firstJoined` DATETIME NOT NULL," +
+					"`lastJoined` DATETIME NOT NULL," + 
+					"`logoutLocation` VARCHAR(255) NOT NULL," + 
+					"`timePlayed` INT NOT NULL," + 
+					"`banReason` VARCHAR(255) NOT NULL," + 
+					"PRIMARY KEY (`id`)) ENGINE = InnoDB;");
+			
+			st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + prefix + "blocks` " + 
+					"(`id` INT NOT NULL AUTO_INCREMENT," +
+					"`block` VARCHAR(50) NOT NULL," +
+					"`trustlevel` INT NOT NULL," +
+					"`allowBreak` BOOLEAN NOT NULL," +
+					"PRIMARY KEY (`id`)) ENGINE = InnoDB;");
+			
+			st.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	
 	// ----------- //
 	// MySQl Utils //
 	// ------------//
-	public static Integer getInt(String table, String value, String where) {
+	public static Integer getInt(Statement st, String table, String value, String where) {
 		try {
-			ResultSet rs = query("SELECT `" + value + "` FROM `" + table + "` WHERE " + where);
-			if (rs.next())
-				return Integer.valueOf(rs.getInt(value));
-			rs.close();
+			ResultSet rs = st.executeQuery("SELECT `" + value + "` FROM `" + table + "` WHERE " + where);
+			if(rs.next()) {
+				int i = rs.getInt(value);
+				rs.close();
+				return i;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} 
 		return Integer.valueOf(0);
 	}
-	public static Long getLong(String table, String value, String where) {
+	public static Long getLong(Statement st, String table, String value, String where) {
 		try {
 			ResultSet rs = query("SELECT `" + value + "` FROM `" + table + "` WHERE " + where);
-			if (rs.next())
-				return Long.valueOf(rs.getLong(value)); 
+			if(rs.next()) {
+				Long l = rs.getLong(value);
+				rs.close();
+				return l;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} 
 		return null;
 	}
-	public static Double getDouble(String table, String value, String where) {
+	public static Double getDouble(Statement st, String table, String value, String where) {
 		try {
 			ResultSet rs = query("SELECT `" + value + "` FROM `" + table + "` WHERE " + where);
-			if(rs.next())
-				return Double.valueOf(rs.getDouble(value));
-			rs.close();
+			if(rs.next()) {
+				Double d = rs.getDouble(value);
+				rs.close();
+				return d;
+			}
+				
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} 
 		return null;
 	}
-	public static Float getFloat(String table, String value, String where) {
+	public static Float getFloat(Statement st, String table, String value, String where) {
 		try {
 			ResultSet rs = query("SELECT `" + value + "` FROM `" + table + "` WHERE " + where);
-			if(rs.next())
-				return Float.valueOf(rs.getFloat(value));
-			rs.close();
+			if(rs.next()) {
+				Float f = rs.getFloat(value);
+				rs.close();
+				return f;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} 
 		return null;
 	}
-	
-	public static String getString(String table, String value, String where) {
+	public static Boolean getBoolean(Statement st, String table, String value, String where) {
 		try {
 			ResultSet rs = query("SELECT `" + value + "` FROM `" + table + "` WHERE " + where);
-			if (rs.next())
-				return rs.getString(value);
-			rs.close();
+			if(rs.next()) {
+				Boolean b = rs.getBoolean(value);
+				rs.close();
+				return b;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} 
+		return Boolean.valueOf(false);
+	}
+	public static String getString(Statement st, String table, String value, String where) {
+		try {
+			ResultSet rs = query("SELECT `" + value + "` FROM `" + table + "` WHERE " + where);
+			if(rs.next()) {
+				String s = rs.getString(value);
+				rs.close();
+				return s;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} 
 		return null;
 	}
-	public static ArrayList<String> getStringList(String table, String value, String where) {
+	public static ArrayList<String> getStringList(Statement st, String table, String value, String where) {
 		ArrayList<String> result = new ArrayList<String>();
 		try {
 			ResultSet rs = query("SELECT `" + value + "` FROM `" + table + "` WHERE " + where);
-			if(rs.first())
-				do {
-					if (result.contains(rs.getString(value)))
-						result.add(rs.getString(value));
-					continue;
+			if(rs.first()) {
+				while(rs.next()) {
+					result.add(rs.getString(value));
 				}
-				while (rs.next());
+			}
 			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} 
 		return result;
 	}
-	public static ArrayList<String> getStringList(String table, String value) {
+	public static ArrayList<String> getStringList(Statement st, String table, String value) {
 		ArrayList<String> result = new ArrayList<String>();
 		try {
 			ResultSet rs = query("SELECT `" + value + "` FROM `" + table + "`");
-			if(rs.first())
-				do {
-					if (result.contains(rs.getString(value)))
-						result.add(rs.getString(value));
-					continue;
+			if(rs.first()) {
+				while(rs.next()) {
+					result.add(rs.getString(value));
 				}
-				while (rs.next());
+			}
 			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -335,16 +385,19 @@ public class MySQL {
 	}
 	
 	
-	public static void deleteEntry(String table, String where) {
-		update("DELETE FROM `" + table + "` WHERE " + where);
+	public static void deleteEntry(Statement st, String table, String where) {
+		try {
+			st.executeUpdate("DELETE FROM `" + table + "` WHERE " + where);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
-	public static boolean checkExists(String table, String value, String where) {
+	public static boolean checkExists(Statement st, String table, String value, String where) {
 		try {
 			ResultSet rs = query("SELECT `" + value + "` FROM `" + table + "` WHERE " + where);
-			if(rs.next() && 
-					rs.getString(value) != null)
+			if(rs.next())
 				return true;
 			rs.close();
 		} catch (SQLException e) {
@@ -352,19 +405,4 @@ public class MySQL {
 		} 
 		return false;
 	}
-	public static Boolean getBoolean(String table, String value, String where) {
-		try {
-			ResultSet rs = query("SELECT `" + value + "` FROM `" + table + "` WHERE " + where);
-			if(rs.next())
-				return Boolean.valueOf(rs.getBoolean(value));
-			rs.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} 
-		return Boolean.valueOf(false);
-	}
-	
-
-	
-	
 }

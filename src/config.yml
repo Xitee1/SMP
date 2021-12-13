@@ -16,7 +16,7 @@ mysql:
 ##############
 ### Blöcke ###
 ##############
-nonVerified:
+interactAllowedTrustLevel1:
   - ACACIA_PRESSURE_PLATE
   - BIRCH_PRESSURE_PLATE
   - CRIMSON_PRESSURE_PLATE
@@ -28,8 +28,8 @@ nonVerified:
   - POLISHED_BLACKSTONE_PRESSURE_PLATE
   - SPRUCE_PRESSURE_PLATE
   - STONE_PRESSURE_PLATE
-  - WARPED_PRESSURE_PLATE	
-  - SPRUCE_BUTTON	
+  - WARPED_PRESSURE_PLATE
+  - SPRUCE_BUTTON
   - CHEST
   - HOPPER
   - CHEST_MINECART
@@ -43,15 +43,6 @@ nonVerified:
   - OAK_DOOR
   - SPRUCE_DOOR
   - WARPED_DOOR
-trustedBlackList:
+dangerousBlocks:
   - LAVA_BUCKET
   - FLINT_AND_STEEL
-
-###############
-### Spieler ###
-###############
-allowed:
-  - Xitecraft
-  
-trusted:
-  - SomeTrustedGuy

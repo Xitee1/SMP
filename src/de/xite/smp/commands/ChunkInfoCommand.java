@@ -5,6 +5,8 @@ import net.md_5.bungee.api.ChatColor;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
@@ -74,6 +76,11 @@ public class ChunkInfoCommand implements CommandExecutor {
 				}
 				isLoading.replace(p, true);
 				try {
+					if(statement.isClosed()) {
+						if(!MySQL.isConnected())
+							return;
+						statement = MySQL.getConnection().createStatement();
+					}
 					ResultSet rs = statement.executeQuery("SELECT `date_created`,`version_created`,`date_modified`,`version_modified`  FROM `"+MySQL.prefix+"chunks` WHERE "+
 							"`world`='"+chunk.getWorld().getName()+"' AND `loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() +"'");
 					if(rs.next()) {
@@ -102,7 +109,14 @@ public class ChunkInfoCommand implements CommandExecutor {
 			}
 		});
 	}
-	
+	public static void registerChunkInteraction(Player p) {
+		if(!BlockInfoCommand.players.contains(p)) {
+			Chunk chunk = p.getLocation().getChunk();
+			SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+			MySQL.waitingUpdates.add("UPDATE `" + MySQL.prefix + "chunks` SET `version_modified`='" + Main.MCVersion + "', `date_modified`='" + sdf.format(new Date()) + "' " + 
+									"WHERE `world`='"+chunk.getWorld().getName()+"' AND `loc_x`='"+chunk.getX()+"' AND `loc_z`='"+chunk.getZ()+"';");
+		}
+	}
 	
 	public static void chunkInfoUpdater() {
 		Bukkit.getScheduler().runTaskTimer(Main.pl, new Runnable() {
