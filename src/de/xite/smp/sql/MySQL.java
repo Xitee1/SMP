@@ -32,68 +32,62 @@ public class MySQL {
 
 	public static boolean connect() {
 		if(useMySQL) {
-			try {
-				if(!isConnected()) {
-					Main.pl.getLogger().info("Verbinde mit MySQL...");
-					if(host == null || host.length() == 0) {
-						pl.getLogger().severe("You haven't set a host");
-						return false;
-					} 
-					if(port == 0) {
-						Main.pl.getLogger().severe("You haven't set a port");
-						return false;
-					} 
-					if(username == null || username.length() == 0) {
-						pl.getLogger().severe("You haven't set a username");
-						return false;
-					} 
-					if(password == null || password.length() == 0 || password.equalsIgnoreCase("YourPassword")) {
-						pl.getLogger().severe("You haven't set a password or you are using the default.");
-						return false;
-					} 
-					if(database == null || database.length() == 0) {
-						pl.getLogger().severe("You haven't set a database");
-						return false;
-					} 
-					if(prefix == null || prefix.length() == 0) {
-						pl.getLogger().severe("You haven't set a table prefix");
-						return false;
-					} 
-					//c = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?useSSL=" + useSSL, username, password);
-					
-			        HikariConfig config = new HikariConfig();
-			        config.setJdbcUrl("jdbc:mysql://"+host+":"+port+"/"+database);
-			        config.setUsername(username);
-			        config.setPassword(password);
-			        config.addDataSourceProperty("characterEncoding", "UTF-8");
-			        config.addDataSourceProperty("connectionTimeout", "28800");
-			        /* https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration */
-			        /* https://cdn.oreillystatic.com/en/assets/1/event/21/Connector_J%20Performance%20Gems%20Presentation.pdf */
-			        config.addDataSourceProperty("cachePrepStmts", "true");
-			        config.addDataSourceProperty("prepStmtCacheSize", "250");
-			        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-			        config.addDataSourceProperty("useServerPrepStmts", "true");
-			        config.addDataSourceProperty("useLocalSessionState", "true");
-			        config.addDataSourceProperty("rewriteBatchedStatements", "true");
-			        config.addDataSourceProperty("cacheServerConfiguration", "true");
-			        config.addDataSourceProperty("maintainTimeStats", "false");
-			        /* Disable SSL to suppress the unverified server identity warning */
-			        config.addDataSourceProperty("useSSL", "false");
+			if(!isConnected()) {
+				Main.pl.getLogger().info("Verbinde mit MySQL...");
+				if(host == null || host.length() == 0) {
+					pl.getLogger().severe("You haven't set a host");
+					return false;
+				} 
+				if(port == 0) {
+					Main.pl.getLogger().severe("You haven't set a port");
+					return false;
+				} 
+				if(username == null || username.length() == 0) {
+					pl.getLogger().severe("You haven't set a username");
+					return false;
+				} 
+				if(password == null || password.length() == 0 || password.equalsIgnoreCase("YourPassword")) {
+					pl.getLogger().severe("You haven't set a password or you are using the default.");
+					return false;
+				} 
+				if(database == null || database.length() == 0) {
+					pl.getLogger().severe("You haven't set a database");
+					return false;
+				} 
+				if(prefix == null || prefix.length() == 0) {
+					pl.getLogger().severe("You haven't set a table prefix");
+					return false;
+				} 
+				//c = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?useSSL=" + useSSL, username, password);
+				
+			    HikariConfig config = new HikariConfig();
+			    config.setJdbcUrl("jdbc:mysql://"+host+":"+port+"/"+database);
+			    config.setUsername(username);
+			    config.setPassword(password);
+			    config.setMaximumPoolSize(15);
+			    
+			    config.addDataSourceProperty("characterEncoding", "UTF-8");
+			    config.addDataSourceProperty("connectionTimeout", "28800");
+			    /* https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration */
+			    /* https://cdn.oreillystatic.com/en/assets/1/event/21/Connector_J%20Performance%20Gems%20Presentation.pdf */
+			    config.addDataSourceProperty("cachePrepStmts", "true");
+			    config.addDataSourceProperty("prepStmtCacheSize", "250");
+			    config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+			    config.addDataSourceProperty("useServerPrepStmts", "true");
+			    config.addDataSourceProperty("useLocalSessionState", "true");
+			    config.addDataSourceProperty("rewriteBatchedStatements", "true");
+			    config.addDataSourceProperty("cacheServerConfiguration", "true");
+			    config.addDataSourceProperty("maintainTimeStats", "false");
+		        config.addDataSourceProperty("useUnicode",true);
+		        config.addDataSourceProperty("allowMultiQueries",true);
+			    /* Disable SSL to suppress the unverified server identity warning */
+			    config.addDataSourceProperty("useSSL", "false");
 
-			        ds = new HikariDataSource(config);
-			        if(getConnection() == null) {
-			        	pl.getLogger().info("Konnte keine Verbindung zu MySQL herstellen!");
-			        	return false;
-			        }
-			        
-					createTables();
-					startMySQLHandler();
-					pl.getLogger().info("MySQL verbunden!");
-				}
-			}catch(SQLException e) {
-				pl.getLogger().severe("Konnte keine Verbindung zu MySQL herstellen!");
-				e.printStackTrace();
-				return false;
+			    ds = new HikariDataSource(config);
+			    
+				createTables();
+				startMySQLHandler();
+				pl.getLogger().info("MySQL verbunden!");
 			}
 		}else {
 			SQLite.getSQLConnection();
@@ -111,8 +105,14 @@ public class MySQL {
 		}
 		return true;
 	}
-    public static Connection getConnection() throws SQLException {
-        return ds.getConnection();
+    public static Connection getConnection() {
+        try {
+			return ds.getConnection();
+		} catch (SQLException e) {
+			pl.getLogger().severe("Konnte keine Verbindung zu MySQL herstellen!");
+			e.printStackTrace();
+		}
+        return null;
     }
 	public static void startMySQLHandler() {
 		// Automatically reconnect if connection is lost
@@ -147,9 +147,11 @@ public class MySQL {
 		if(!waitingUpdates.isEmpty()) {
 			pl.getLogger().info("Executing all waiting updates..");
 			Statement st;
+			Connection c = getConnection();
+			Long currentTime = System.currentTimeMillis();
 			try {
 				pl.getLogger().info("Creating statement..");
-				st = getConnection().createStatement();
+				st = c.createStatement();
 				pl.getLogger().info("Statement created!");
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -162,30 +164,33 @@ public class MySQL {
 			list.addAll(waitingUpdates);
 			for(String s : list) {
 				try {
-					pl.getLogger().info("Current update: "+s);
 					st.executeUpdate(s);
 					waitingUpdates.remove(s);
 				} catch (SQLException e) {
-					pl.getLogger().info("Could not update! (Connection broken)");
+					pl.getLogger().info("Could not update! Query:"+s);
 				}
 				i++;
 			}
 			
 			try {
 				st.close();
+				c.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			pl.getLogger().info("Executed "+i+" querys.");
+			Long took = (System.currentTimeMillis() - currentTime)/1000;
+			pl.getLogger().info("Executed "+i+" updates. Took "+took+"s.");
 		}
 		isUpdating = false;
 	}
   	
 	public static boolean update(String qry) {
+		Connection c = getConnection();
 		try {
-			Statement st = getConnection().createStatement();
+			Statement st = c.createStatement();
 			st.executeUpdate(qry);
 			st.close();
+			c.close();
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -196,8 +201,9 @@ public class MySQL {
 		}
 	}
 	public static ResultSet query(String qry) {
+		Connection c = getConnection();
 		try {
-			Statement st = getConnection().createStatement();
+			Statement st = c.createStatement();
 			return st.executeQuery(qry);
 		} catch (SQLException e) {
 			pl.getLogger().severe("There was an error whilst executing query: " + qry);
@@ -231,7 +237,8 @@ public class MySQL {
 	}
 	private static void createTables() {
 		try {
-			Statement st = getConnection().createStatement();
+			Connection c = getConnection();
+			Statement st = c.createStatement();
 			// chunk table
 			st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + prefix + "chunks` " + 
 					"(`id` INT NOT NULL AUTO_INCREMENT," +
@@ -252,7 +259,7 @@ public class MySQL {
 					"`firstJoined` DATETIME NOT NULL," +
 					"`lastJoined` DATETIME NOT NULL," + 
 					"`logoutLocation` VARCHAR(255) NOT NULL," + 
-					"`timePlayed` INT NOT NULL," + 
+					"`playTime` INT NOT NULL," + 
 					"`banReason` VARCHAR(255) NOT NULL," + 
 					"PRIMARY KEY (`id`)) ENGINE = InnoDB;");
 			
@@ -264,6 +271,7 @@ public class MySQL {
 					"PRIMARY KEY (`id`)) ENGINE = InnoDB;");
 			
 			st.close();
+			c.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

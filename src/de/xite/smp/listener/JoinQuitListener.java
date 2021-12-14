@@ -2,11 +2,16 @@ package de.xite.smp.listener;
 
 import de.xite.smp.commands.BlockInfoCommand;
 import de.xite.smp.commands.ChunkInfoCommand;
+import de.xite.smp.main.Main;
 import de.xite.smp.sql.MySQL;
 import de.xite.smp.utils.SMPPlayer;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatColor;
 
+import java.util.UUID;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -37,7 +42,7 @@ public class JoinQuitListener implements Listener {
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
 		Player p = e.getPlayer();
-		if(SMPPlayer.getPlayer(p).getTrustLevel() == 0)
+		if(SMPPlayer.getPlayer(p).getTrustLevel() == 1)
 			p.setCollidable(false);
 		e.joinMessage(Component.text(ChatColor.YELLOW + p.getName() + " hat das Spiel betreten."));
 	}
@@ -45,12 +50,19 @@ public class JoinQuitListener implements Listener {
 	public void onQuit(PlayerQuitEvent e) {
 		Player p = e.getPlayer();
 		e.quitMessage(Component.text(ChatColor.YELLOW + p.getName() + " hat das Spiel verlassen."));
+		Location loc = p.getLocation();
+		UUID uuid = p.getUniqueId();
 		
-		SMPPlayer sp = SMPPlayer.getPlayer(p);
-		sp.setLastJoined();
-		sp.savePlayTime();
-		sp.setLogoutLocation(p.getLocation());
-		sp.remove();
+		Bukkit.getScheduler().runTaskAsynchronously(Main.pl, new Runnable() {
+			@Override
+			public void run() {
+				SMPPlayer sp = SMPPlayer.getPlayer(uuid);
+				sp.setLastJoined();
+				sp.savePlayTime();
+				sp.setLogoutLocation(loc);
+				sp.remove();
+			}
+		});
 		
 		// Remove all cache
 		if(BlockInfoCommand.fastLookupThrottle.containsKey(p))

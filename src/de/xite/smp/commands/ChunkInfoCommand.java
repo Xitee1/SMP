@@ -2,6 +2,7 @@ package de.xite.smp.commands;
 
 import net.md_5.bungee.api.ChatColor;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -25,6 +26,7 @@ public class ChunkInfoCommand implements CommandExecutor {
 	public static HashMap<Player, Chunk> lastChunk = new HashMap<>();
 	public static HashMap<Player, Boolean> isLoading = new HashMap<>();
 	private static Statement statement = null;
+	private static Connection c = null;
 	
 	public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
 		if(s instanceof Player) {
@@ -36,8 +38,14 @@ public class ChunkInfoCommand implements CommandExecutor {
 				Actionbar.removeActionBar(p);
 				if(lastChunk.isEmpty()) {
 					try {
-						statement.close();
-						statement = null;
+						if(statement != null) {
+							statement.close();
+							statement = null;
+						}
+						if(c != null) {
+							c.close();
+							c = null;
+						}
 						Main.pl.getLogger().info("ChunkInfo Statement geschlossen");
 					} catch (SQLException e) {
 						e.printStackTrace();
@@ -46,7 +54,8 @@ public class ChunkInfoCommand implements CommandExecutor {
 			}else {
 				if(statement == null) {
 					try {
-						statement = MySQL.getConnection().createStatement();
+						c = MySQL.getConnection();
+						statement = c.createStatement();
 						Main.pl.getLogger().info("ChunkInfo Statement erstellt");
 					} catch (SQLException e) {
 						e.printStackTrace();
@@ -76,11 +85,6 @@ public class ChunkInfoCommand implements CommandExecutor {
 				}
 				isLoading.replace(p, true);
 				try {
-					if(statement.isClosed()) {
-						if(!MySQL.isConnected())
-							return;
-						statement = MySQL.getConnection().createStatement();
-					}
 					ResultSet rs = statement.executeQuery("SELECT `date_created`,`version_created`,`date_modified`,`version_modified`  FROM `"+MySQL.prefix+"chunks` WHERE "+
 							"`world`='"+chunk.getWorld().getName()+"' AND `loc_x`='" + chunk.getX() + "' AND `loc_z`='" + chunk.getZ() +"'");
 					if(rs.next()) {

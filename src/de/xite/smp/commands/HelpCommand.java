@@ -15,9 +15,9 @@ public class HelpCommand implements CommandExecutor{
 	public boolean onCommand(@NotNull CommandSender s, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 		s.sendMessage(pr+"Nützliche Befehle:");
 		s.sendMessage(pr+ChatColor.GRAY+"- "+ChatColor.AQUA+"/hilfe "+ChatColor.GRAY+"| Dieses Hilfe-Menü");
-		s.sendMessage(pr+ChatColor.GRAY+"- "+ChatColor.AQUA+"/trustlevel "+ChatColor.GRAY+"| Zeigt dir dein TrustLevel an");
-		s.sendMessage(pr+ChatColor.GRAY+"- "+ChatColor.AQUA+"/ci "+ChatColor.GRAY+"| Zeigt dir Infos über die Chunks an");
-		s.sendMessage(pr+ChatColor.GRAY+"- "+ChatColor.AQUA+"/bi "+ChatColor.GRAY+"| Zeigt dir Infos über einen Block an");
+		s.sendMessage(pr+ChatColor.GRAY+"- "+ChatColor.AQUA+"/trustlevel "+ChatColor.GRAY+"| Zeigt dir dein TrustLevel an.");
+		s.sendMessage(pr+ChatColor.GRAY+"- "+ChatColor.AQUA+"/ci "+ChatColor.GRAY+"| Zeigt dir Infos über die Chunks an.");
+		s.sendMessage(pr+ChatColor.GRAY+"- "+ChatColor.AQUA+"/bi "+ChatColor.GRAY+"| Zeigt dir Infos über einen Block an.");
 		return true;
 	}
 }

@@ -61,7 +61,7 @@ public class TrustLevelCommand implements CommandExecutor{
 			if(sp.getTrustLevel() == 1) {
 				s.sendMessage(pr+ChatColor.RED+"Der Spieler "+ChatColor.YELLOW+args[1]+ChatColor.RED+" ist bereits auf der niedrigsten Stufe.");
 			}else {
-				sp.setTrustLevel(sp.getTrustLevel()+1);
+				sp.setTrustLevel(sp.getTrustLevel()-1);
 				s.sendMessage(pr+"Der Spieler "+ChatColor.YELLOW+args[1]+ChatColor.GRAY+" hat nun das TrustLevel "+ChatColor.YELLOW+sp.getTrustLevel()+ChatColor.GRAY+"/"+ChatColor.YELLOW+SMPPlayer.maxTrustLevel+ChatColor.GRAY+".");
 			}
 		}else if(args.length == 3 && args[0].equalsIgnoreCase("set")) {
@@ -81,8 +81,8 @@ public class TrustLevelCommand implements CommandExecutor{
 			}
 			
 			SMPPlayer sp = SMPPlayer.getPlayer(UUIDFetcher.getUUID(args[1]));
-			if(sp.getTrustLevel() < 1 || sp.getTrustLevel() > SMPPlayer.maxTrustLevel) {
-				s.sendMessage(pr+ChatColor.RED+"Ungültige Eingabe. Gültige TrustLevel: "+ChatColor.YELLOW+"0"+ChatColor.GRAY+"-"+ChatColor.YELLOW+SMPPlayer.maxTrustLevel);
+			if(i < 1 || i > SMPPlayer.maxTrustLevel) {
+				s.sendMessage(pr+ChatColor.RED+"Ungültige Eingabe. Gültige TrustLevel: "+ChatColor.YELLOW+"1"+ChatColor.GRAY+"-"+ChatColor.YELLOW+SMPPlayer.maxTrustLevel);
 			}else {
 				sp.setTrustLevel(i);
 				s.sendMessage(pr+"Der Spieler "+ChatColor.YELLOW+args[1]+ChatColor.GRAY+" hat nun das TrustLevel "+ChatColor.YELLOW+sp.getTrustLevel()+ChatColor.GRAY+"/"+ChatColor.YELLOW+SMPPlayer.maxTrustLevel+ChatColor.GRAY+".");
@@ -124,10 +124,10 @@ public class TrustLevelCommand implements CommandExecutor{
 				return false;
 			}
 		}
-		if(sp.getTrustLevel() == 3) {
+		if(sp.getTrustLevel() == 4) {
 			if(!SMPPlayer.isLVLmaxOnline()) {
 				if(Main.dangerousBlocks.contains(m)) {
-					Messages.trustLevelDangerousBlock(p);
+					Messages.trustLevelOnlineNeeded(p);
 					return false;
 				}
 			}
