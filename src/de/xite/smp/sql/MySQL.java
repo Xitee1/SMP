@@ -150,9 +150,7 @@ public class MySQL {
 			Connection c = getConnection();
 			Long currentTime = System.currentTimeMillis();
 			try {
-				pl.getLogger().info("Creating statement..");
 				st = c.createStatement();
-				pl.getLogger().info("Statement created!");
 			} catch (SQLException e) {
 				e.printStackTrace();
 				ds.close();
@@ -178,8 +176,9 @@ public class MySQL {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			Long took = (System.currentTimeMillis() - currentTime)/1000;
-			pl.getLogger().info("Executed "+i+" updates. Took "+took+"s.");
+			Long took = (System.currentTimeMillis() - currentTime);
+			Long average = took/i;
+			pl.getLogger().info("Executed "+i+" updates. Took "+took+"ms ("+average+"ms/query).");
 		}
 		isUpdating = false;
 	}

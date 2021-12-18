@@ -79,6 +79,17 @@ public class ChunkInfoCommand implements CommandExecutor {
 		Bukkit.getScheduler().runTaskAsynchronously(Main.pl, new Runnable() {
 			@Override
 			public void run() {
+				try {
+					if(statement == null || statement.isClosed()) {
+						Actionbar.sendActionBar(p, ChatColor.GREEN+"ChunkInfo "+ChatColor.DARK_GRAY+"| "+ChatColor.GOLD+"Fehler! Schalte ChunkInfo aus und wieder ein.", 20*60);
+						return;
+					}
+						
+				} catch (SQLException e1) {
+					Actionbar.sendActionBar(p, ChatColor.GREEN+"ChunkInfo "+ChatColor.DARK_GRAY+"| "+ChatColor.GOLD+"Fehler! Schalte ChunkInfo aus und wieder ein.", 20*60);
+					e1.printStackTrace();
+					return;
+				}
 				if(lastChunk.get(p) != chunk) {
 					lastChunk.replace(p, chunk);
 					Actionbar.sendActionBar(p, ChatColor.GREEN+"ChunkInfo "+ChatColor.DARK_GRAY+"| "+ChatColor.GOLD+"Lädt..", 20*60);
@@ -99,14 +110,15 @@ public class ChunkInfoCommand implements CommandExecutor {
 									"Originalzustand", 60*60);
 						}else {
 							Actionbar.sendActionBar(p, ChatColor.GREEN+"ChunkInfo "+ChatColor.DARK_GRAY+"| "+ChatColor.GRAY+
-									"Erstellt am "+ChatColor.AQUA+date_created+ChatColor.GRAY+" mit der Version "+ChatColor.AQUA+version_created+ChatColor.DARK_GRAY+" | "+ChatColor.GRAY+
-									"Bearbeitet am "+ChatColor.AQUA+date_modified+ChatColor.GRAY+" mit der Version "+ChatColor.AQUA+version_modified, 20*60);
+									"Erstellt: "+ChatColor.AQUA+date_created+ChatColor.GRAY+" ("+ChatColor.AQUA+version_created+ChatColor.GRAY+")"+ChatColor.DARK_GRAY+" | "+ChatColor.GRAY+
+									"Bearbeitet: "+ChatColor.AQUA+date_modified+ChatColor.GRAY+" ("+ChatColor.AQUA+version_modified+ChatColor.DARK_GRAY+")", 20*60);
 						}
 					}else {
 						Actionbar.sendActionBar(p, ChatColor.GREEN+"ChunkInfo "+ChatColor.DARK_GRAY+"| "+ChatColor.RED+"Keine informationen für diesen Chunk.", 20*60);
 					}
 				} catch (SQLException e) {
 					Main.pl.getLogger().severe("Konnte keine Daten von der MySQL Datenbank holen!");
+					Actionbar.sendActionBar(p, ChatColor.GREEN+"ChunkInfo "+ChatColor.DARK_GRAY+"| "+ChatColor.GOLD+"Fehler! Schalte ChunkInfo aus und wieder ein.", 20*60);
 					e.printStackTrace();
 				}
 				isLoading.replace(p, false);

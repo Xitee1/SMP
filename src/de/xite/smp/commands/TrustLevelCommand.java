@@ -1,10 +1,14 @@
 package de.xite.smp.commands;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import de.xite.smp.main.Main;
@@ -13,10 +17,10 @@ import de.xite.smp.utils.SMPPlayer;
 import de.xite.smp.utils.UUIDFetcher;
 import net.md_5.bungee.api.ChatColor;
 
-public class TrustLevelCommand implements CommandExecutor{
+public class TrustLevelCommand implements CommandExecutor, TabCompleter{
 	static Main pl = Main.pl;
 	
-	String pr = ChatColor.GRAY+"["+ChatColor.RED+"Verify"+ChatColor.GRAY+"] ";
+	String pr = ChatColor.GRAY+"["+ChatColor.RED+"Trustlevel"+ChatColor.GRAY+"] ";
 
 	@Override
 	public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
@@ -99,7 +103,30 @@ public class TrustLevelCommand implements CommandExecutor{
 		}
 		return true;
 	}
-	
+	@Override
+	public List<String> onTabComplete(CommandSender s, Command cmd, String alias, String[] args) {
+		List<String> list = new ArrayList<String>();
+		if(s instanceof Player) {
+			Player p = (Player) s;
+			if(!p.hasPermission("smp.trustlevel.modify"))
+				return list;
+		}
+		if(args.length == 1) {
+			list.add("promote");
+			list.add("demote");
+			list.add("set");
+		}
+		if(args.length == 2) {
+			for(Player all : Bukkit.getOnlinePlayers())
+				list.add(all.getName());
+		}
+		if(args.length == 3 && args[0].equalsIgnoreCase("set")) {
+			for(int i = 1; i <= SMPPlayer.maxTrustLevel; i++)
+				list.add(i+"");
+		}
+		
+		return list;
+	}
 	
 	public static Boolean checkBlockBreakPlace(Player p, Material m) {
 		SMPPlayer sp = SMPPlayer.getPlayer(p);

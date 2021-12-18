@@ -19,6 +19,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.permissions.PermissionAttachment;
 
 public class JoinQuitListener implements Listener {
 	@EventHandler
@@ -42,8 +43,19 @@ public class JoinQuitListener implements Listener {
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
 		Player p = e.getPlayer();
-		if(SMPPlayer.getPlayer(p).getTrustLevel() == 1)
+		int trustlevel = SMPPlayer.getPlayer(p).getTrustLevel();
+		if(trustlevel == 1)
 			p.setCollidable(false);
+		
+		// Permissions
+		PermissionAttachment perms = p.addAttachment(Main.pl);
+		perms.setPermission("trustlevel.level."+trustlevel, true);
+		if(trustlevel == 6) {
+			perms.setPermission("spartan.bypass", true);
+			perms.setPermission("spartan.punishment ", true);
+		}
+			
+		
 		e.joinMessage(Component.text(ChatColor.YELLOW + p.getName() + " hat das Spiel betreten."));
 	}
 	@EventHandler

@@ -13,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import de.xite.smp.main.Main;
 import de.xite.smp.sql.MySQL;
 import net.md_5.bungee.api.ChatColor;
 
@@ -57,14 +58,19 @@ public class SMPPlayer {
 				Player p = Bukkit.getPlayer(uuid);
 				if(p != null) {
 					this.name = p.getName();
-					for(Player all : Bukkit.getOnlinePlayers())
-						all.sendMessage(ChatColor.GREEN+"Neuer Spieler! Herzlich Willkommen, "+ChatColor.YELLOW+p.getName()+ChatColor.GREEN+"!");
+					Bukkit.getScheduler().runTaskLater(Main.pl, new Runnable() {
+						@Override
+						public void run() {
+							for(Player all : Bukkit.getOnlinePlayers())
+								all.sendMessage(ChatColor.GREEN+"Neuer Spieler! Herzlich Willkommen, "+ChatColor.YELLOW+p.getName()+ChatColor.GREEN+"!");
+						}
+					}, 20);
 				}else {
 					this.name = NameFetcher.getName(uuid);
 				}
 				st.executeUpdate("INSERT INTO `"+MySQL.prefix+"players` (`id`, `uuid`, `name`, `trustlevel`, `firstJoined`, `lastJoined`, `logoutLocation`, `playTime`, `banReason`) VALUES"
 						+ "(NULL, '"+uuid+"', '"+this.name+"', '1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'world%0%0%0%0%0', '0', 'none')");
-				this.trustlevel = 0;
+				this.trustlevel = 1;
 				this.firstJoined = Timestamp.valueOf(LocalDateTime.now());
 				this.lastJoined = Timestamp.valueOf(LocalDateTime.now());
 				this.logoutLocaction = null;

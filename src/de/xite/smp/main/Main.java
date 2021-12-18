@@ -67,7 +67,7 @@ public class Main extends JavaPlugin{
 		
 		// TrustLevel
 		getCommand("trustlevel").setExecutor(new TrustLevelCommand());
-		
+		getCommand("trustlevel").setTabCompleter(new TrustLevelCommand());
 		// ChunkInfo
 		getCommand("chunkinfo").setExecutor(new ChunkInfoCommand());
 		getCommand("ci").setExecutor(new ChunkInfoCommand());
@@ -113,6 +113,8 @@ public class Main extends JavaPlugin{
 		pl.getLogger().info("Moving logs..");
 		File logFile = new File("logs/latest.log");
 		File destinationFolder = new File("server_logs");
+		if(!destinationFolder.exists())
+			destinationFolder.mkdir();
 		if(logFile.exists()) {
 			SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy__HH_mm");
 			try {
