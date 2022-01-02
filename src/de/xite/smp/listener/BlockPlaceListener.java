@@ -5,8 +5,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-import de.xite.smp.commands.ChunkInfoCommand;
+import de.xite.smp.commands.BlockInfoCommand;
 import de.xite.smp.commands.TrustLevelCommand;
+import de.xite.smp.utils.ChunkManager;
 
 public class BlockPlaceListener implements Listener {
 	@EventHandler
@@ -18,6 +19,7 @@ public class BlockPlaceListener implements Listener {
 			return;
 		}
 		
-		ChunkInfoCommand.registerChunkInteraction(p);
+		if(!BlockInfoCommand.players.contains(p))
+			ChunkManager.getChunk(p.getLocation().getChunk(), true).updateChunk();
 	}
 }

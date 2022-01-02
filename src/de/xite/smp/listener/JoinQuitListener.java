@@ -52,7 +52,7 @@ public class JoinQuitListener implements Listener {
 		perms.setPermission("trustlevel.level."+trustlevel, true);
 		if(trustlevel == 6) {
 			perms.setPermission("spartan.bypass", true);
-			perms.setPermission("spartan.punishment ", true);
+			perms.setPermission("spartan.punishment", true);
 		}
 			
 		

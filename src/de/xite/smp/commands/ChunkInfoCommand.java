@@ -6,8 +6,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
@@ -20,6 +18,7 @@ import org.bukkit.entity.Player;
 import de.xite.smp.main.Main;
 import de.xite.smp.sql.MySQL;
 import de.xite.smp.utils.Actionbar;
+import de.xite.smp.utils.ChunkManager;
 
 public class ChunkInfoCommand implements CommandExecutor {
 	private static String pr = ChatColor.GRAY+"["+ChatColor.RED+"ChunkInfo"+ChatColor.GRAY+"] ";
@@ -101,8 +100,16 @@ public class ChunkInfoCommand implements CommandExecutor {
 					if(rs.next()) {
 						String date_created = rs.getString("date_created");
 						String version_created = rs.getString("version_created");
-						String date_modified = rs.getString("date_modified");
-						String version_modified = rs.getString("version_modified");
+						
+						String date_modified, version_modified;
+						ChunkManager cm = ChunkManager.getChunk(chunk, false);
+						if(cm != null) {
+							date_modified = cm.getDateModified();
+							version_modified = cm.getVersionModified();
+						}else {
+							date_modified = rs.getString("date_modified");
+							version_modified = rs.getString("version_modified");
+						}
 						
 						if(date_modified.equals("none") && version_modified.equals("none")) {
 							Actionbar.sendActionBar(p, ChatColor.GREEN+"ChunkInfo "+ChatColor.DARK_GRAY+"| "+ChatColor.GRAY+ 
@@ -111,7 +118,7 @@ public class ChunkInfoCommand implements CommandExecutor {
 						}else {
 							Actionbar.sendActionBar(p, ChatColor.GREEN+"ChunkInfo "+ChatColor.DARK_GRAY+"| "+ChatColor.GRAY+
 									"Erstellt: "+ChatColor.AQUA+date_created+ChatColor.GRAY+" ("+ChatColor.AQUA+version_created+ChatColor.GRAY+")"+ChatColor.DARK_GRAY+" | "+ChatColor.GRAY+
-									"Bearbeitet: "+ChatColor.AQUA+date_modified+ChatColor.GRAY+" ("+ChatColor.AQUA+version_modified+ChatColor.DARK_GRAY+")", 20*60);
+									"Bearbeitet: "+ChatColor.AQUA+date_modified+ChatColor.GRAY+" ("+ChatColor.AQUA+version_modified+ChatColor.GRAY+")", 20*60);
 						}
 					}else {
 						Actionbar.sendActionBar(p, ChatColor.GREEN+"ChunkInfo "+ChatColor.DARK_GRAY+"| "+ChatColor.RED+"Keine informationen für diesen Chunk.", 20*60);
@@ -124,14 +131,6 @@ public class ChunkInfoCommand implements CommandExecutor {
 				isLoading.replace(p, false);
 			}
 		});
-	}
-	public static void registerChunkInteraction(Player p) {
-		if(!BlockInfoCommand.players.contains(p)) {
-			Chunk chunk = p.getLocation().getChunk();
-			SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-			MySQL.waitingUpdates.add("UPDATE `" + MySQL.prefix + "chunks` SET `version_modified`='" + Main.MCVersion + "', `date_modified`='" + sdf.format(new Date()) + "' " + 
-									"WHERE `world`='"+chunk.getWorld().getName()+"' AND `loc_x`='"+chunk.getX()+"' AND `loc_z`='"+chunk.getZ()+"';");
-		}
 	}
 	
 	public static void chunkInfoUpdater() {

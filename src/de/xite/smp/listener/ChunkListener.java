@@ -18,12 +18,9 @@ public class ChunkListener implements Listener {
 	public void onChunkCreate(ChunkLoadEvent e) {
 		if(e.isNewChunk()) {
 			Chunk chunk = e.getChunk();
-			int x = chunk.getX();
-			int z = chunk.getZ();
 			SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 			MySQL.waitingUpdates.add("INSERT INTO `" + MySQL.prefix + "chunks` (`id`, `world`, `loc_x`, `loc_z`, `version_created`, `date_created`, `version_modified`, `date_modified`) VALUES" + 
-									"(NULL, '"+chunk.getWorld().getName()+"', '" + x + "', '" + z + "', '" + Main.MCVersion + "', '" + sdf.format(new Date()) + "', 'none', 'none')");
-			
+									"(NULL, '"+chunk.getWorld().getName()+"', '"+chunk.getX()+"', '"+chunk.getZ()+"', '"+Main.MCVersion+"', '" + sdf.format(new Date()) + "', 'none', 'none')");
 		} 
 	}
 	

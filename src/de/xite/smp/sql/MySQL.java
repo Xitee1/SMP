@@ -1,6 +1,7 @@
 package de.xite.smp.sql;
 
 import de.xite.smp.main.Main;
+import de.xite.smp.utils.ChunkManager;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -138,7 +139,7 @@ public class MySQL {
 			public void run() {
 				executeAllWaitingUpdates();
 			}
-		}, 20*60, 20*60);
+		}, 20*60*5, 20*60*5);
 	}
 	public static void executeAllWaitingUpdates() {
 		if(isUpdating)
@@ -166,6 +167,17 @@ public class MySQL {
 					waitingUpdates.remove(s);
 				} catch (SQLException e) {
 					pl.getLogger().info("Could not update! Query:"+s);
+				}
+				i++;
+			}
+			list = null;
+			
+			for(ChunkManager cm : ChunkManager.getAllChunks()) {
+				try {
+					st.executeUpdate(cm.getMySQLUpdateQuery());
+					cm.removeChunkFromCache();
+				} catch (SQLException e) {
+					pl.getLogger().info("Could not update! Query:"+cm.getMySQLUpdateQuery());
 				}
 				i++;
 			}

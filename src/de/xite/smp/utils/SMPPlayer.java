@@ -38,7 +38,7 @@ public class SMPPlayer {
 	 * 6: Du kannst mit allem interagieren; Du kannst Bauen; Das AntiCheat überprüft dich nicht mehr
 	 */
 	
-	public SMPPlayer(UUID uuid) {
+	private SMPPlayer(UUID uuid) {
 		try {
 			Connection c = MySQL.getConnection();
 			Statement st = c.createStatement();
@@ -87,11 +87,9 @@ public class SMPPlayer {
 		}
 	}
 	public static SMPPlayer getPlayer(UUID uuid) {
-		if(players.containsKey(uuid))
-			return players.get(uuid);
-		SMPPlayer sp = new SMPPlayer(uuid);
-		players.put(uuid, sp);
-		return sp;
+		if(!players.containsKey(uuid))
+			players.put(uuid, new SMPPlayer(uuid));
+		return players.get(uuid);
 	}
 	public static SMPPlayer getPlayer(Player p) {
 		return getPlayer(p.getUniqueId());
