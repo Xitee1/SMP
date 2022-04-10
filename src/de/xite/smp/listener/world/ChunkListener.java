@@ -1,4 +1,4 @@
-package de.xite.smp.listener;
+package de.xite.smp.listener.world;
 
 import de.xite.smp.main.Main;
 import de.xite.smp.sql.MySQL;

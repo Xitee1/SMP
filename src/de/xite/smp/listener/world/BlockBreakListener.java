@@ -1,17 +1,17 @@
-package de.xite.smp.listener;
+package de.xite.smp.listener.world;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockBreakEvent;
 
 import de.xite.smp.commands.BlockInfoCommand;
 import de.xite.smp.commands.TrustLevelCommand;
 import de.xite.smp.utils.ChunkManager;
 
-public class BlockPlaceListener implements Listener {
+public class BlockBreakListener implements Listener{
 	@EventHandler
-	public void onBlockPlace(BlockPlaceEvent e) {
+	public void onBlockBreak(BlockBreakEvent e) {
 		Player p = e.getPlayer();
 		
 		if(!TrustLevelCommand.checkBlockBreakPlace(p, e.getBlock().getType())) {

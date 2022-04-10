@@ -1,4 +1,4 @@
-package de.xite.smp.listener;
+package de.xite.smp.listener.entity;
 
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;

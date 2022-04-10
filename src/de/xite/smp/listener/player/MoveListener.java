@@ -1,4 +1,4 @@
-package de.xite.smp.listener;
+package de.xite.smp.listener.player;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

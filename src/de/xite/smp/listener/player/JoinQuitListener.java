@@ -1,4 +1,4 @@
-package de.xite.smp.listener;
+package de.xite.smp.listener.player;
 
 import de.xite.smp.commands.BlockInfoCommand;
 import de.xite.smp.commands.ChunkInfoCommand;
