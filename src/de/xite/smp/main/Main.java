@@ -22,15 +22,18 @@ import de.xite.smp.commands.ChunkInfoCommand;
 import de.xite.smp.commands.HelpCommand;
 import de.xite.smp.commands.PlayTimeCommand;
 import de.xite.smp.commands.TrustLevelCommand;
+import de.xite.smp.discord.DiscordChatListener;
+import de.xite.smp.discord.SMPcord;
 import de.xite.smp.listener.entity.EntityDamageListener;
 import de.xite.smp.listener.entity.EntityMountListener;
 import de.xite.smp.listener.entity.EntityTargetListener;
+import de.xite.smp.listener.external.SpartanAnticheat;
+import de.xite.smp.listener.player.BlockBreakPlaceListener;
 import de.xite.smp.listener.player.FoodChangeListener;
 import de.xite.smp.listener.player.InteractListener;
+import de.xite.smp.listener.player.InventoryListener;
 import de.xite.smp.listener.player.JoinQuitListener;
 import de.xite.smp.listener.player.MoveListener;
-import de.xite.smp.listener.world.BlockBreakListener;
-import de.xite.smp.listener.world.BlockPlaceListener;
 import de.xite.smp.listener.world.ChunkListener;
 import de.xite.smp.sql.MySQL;
 import de.xite.smp.utils.Actionbar;
@@ -58,7 +61,17 @@ public class Main extends JavaPlugin{
 		Actionbar.start();
 		PlayTime.startPlaytimeCounter();
 		ChunkInfoCommand.chunkInfoUpdater();
+		
+		// Connect to MySQl database
 		MySQL.connect();
+		
+		// Start up the bot
+		Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
+			@Override
+			public void run() {
+				SMPcord.connectDiscord();
+			}
+		});
 		
 		String vstring = Bukkit.getBukkitVersion();
 		MCVersion = vstring.substring(0, vstring.lastIndexOf("-R")).replace("_", ".");
@@ -87,19 +100,23 @@ public class Main extends JavaPlugin{
 		// --- Events --- //
 		PluginManager pm = Bukkit.getPluginManager();
 		
-		pm.registerEvents(new BlockBreakListener(), this);
-		pm.registerEvents(new BlockPlaceListener(), this);
+		pm.registerEvents(new BlockBreakPlaceListener(), this);
 		pm.registerEvents(new ChunkListener(), this);
 		pm.registerEvents(new EntityDamageListener(), this);
 		pm.registerEvents(new EntityMountListener(), this);
 		pm.registerEvents(new EntityTargetListener(), this);
 		pm.registerEvents(new FoodChangeListener(), this);
 		pm.registerEvents(new InteractListener(), this);
+		pm.registerEvents(new InventoryListener(), this);
 		pm.registerEvents(new JoinQuitListener(), this);
 		pm.registerEvents(new MoveListener(), this);
+		pm.registerEvents(new SpartanAnticheat(), this);
+		pm.registerEvents(new DiscordChatListener(), this);
 		
+		// Cache the config lists
 		for(String s : pl.getConfig().getStringList("interactAllowedTrustLevel1"))
 			interactAllowedTrustLevel1.add(Material.getMaterial(s));
+		
 		for(String s : pl.getConfig().getStringList("dangerousBlocks"))
 			dangerousBlocks.add(Material.getMaterial(s));
 

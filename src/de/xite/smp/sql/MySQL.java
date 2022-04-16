@@ -3,11 +3,14 @@ package de.xite.smp.sql;
 import de.xite.smp.main.Main;
 import de.xite.smp.utils.ChunkManager;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 
@@ -29,101 +32,119 @@ public class MySQL {
 	public static ArrayList<String> waitingUpdates = new ArrayList<>();
 	private static boolean isUpdating = false;
 	
-    private static HikariDataSource ds;
+    private static HikariDataSource ds = null;
+    private static Connection c = null;
 
 	public static boolean connect() {
-		if(useMySQL) {
-			if(!isConnected()) {
-				Main.pl.getLogger().info("Verbinde mit MySQL...");
-				if(host == null || host.length() == 0) {
-					pl.getLogger().severe("You haven't set a host");
-					return false;
-				} 
-				if(port == 0) {
-					Main.pl.getLogger().severe("You haven't set a port");
-					return false;
-				} 
-				if(username == null || username.length() == 0) {
-					pl.getLogger().severe("You haven't set a username");
-					return false;
-				} 
-				if(password == null || password.length() == 0 || password.equalsIgnoreCase("YourPassword")) {
-					pl.getLogger().severe("You haven't set a password or you are using the default.");
-					return false;
-				} 
-				if(database == null || database.length() == 0) {
-					pl.getLogger().severe("You haven't set a database");
-					return false;
-				} 
-				if(prefix == null || prefix.length() == 0) {
-					pl.getLogger().severe("You haven't set a table prefix");
-					return false;
-				} 
-				//c = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + "?useSSL=" + useSSL, username, password);
-				
-			    HikariConfig config = new HikariConfig();
+		if(!isConnected()) {
+			Main.pl.getLogger().info("Verbinde mit SQL...");
+			
+			HikariConfig config = new HikariConfig();
+			if(useMySQL) {
 			    config.setJdbcUrl("jdbc:mysql://"+host+":"+port+"/"+database);
 			    config.setUsername(username);
 			    config.setPassword(password);
-			    config.setMaximumPoolSize(15);
-			    
-			    config.addDataSourceProperty("characterEncoding", "UTF-8");
-			    config.addDataSourceProperty("connectionTimeout", "28800");
-			    /* https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration */
-			    /* https://cdn.oreillystatic.com/en/assets/1/event/21/Connector_J%20Performance%20Gems%20Presentation.pdf */
-			    config.addDataSourceProperty("cachePrepStmts", "true");
-			    config.addDataSourceProperty("prepStmtCacheSize", "250");
-			    config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-			    config.addDataSourceProperty("useServerPrepStmts", "true");
-			    config.addDataSourceProperty("useLocalSessionState", "true");
-			    config.addDataSourceProperty("rewriteBatchedStatements", "true");
-			    config.addDataSourceProperty("cacheServerConfiguration", "true");
-			    config.addDataSourceProperty("maintainTimeStats", "false");
-		        config.addDataSourceProperty("useUnicode",true);
-		        config.addDataSourceProperty("allowMultiQueries",true);
-			    /* Disable SSL to suppress the unverified server identity warning */
-			    config.addDataSourceProperty("useSSL", "false");
+			}else {
+		        File database = new File(pl.getDataFolder(), "database.db");
+		        if(!database.exists()) {
+		            try {
+		            	database.createNewFile();
+		            } catch (IOException e) {
+		                pl.getLogger().log(Level.SEVERE, "File write error: database.db");
+		            }
+		        }
+				
+			    config.setJdbcUrl("jdbc:sqlite:"+database);
+			}
+			
+			
+			if(host == null || host.length() == 0) {
+				pl.getLogger().severe("You haven't set a host");
+				return false;
+			} 
+			if(port == 0) {
+				Main.pl.getLogger().severe("You haven't set a port");
+				return false;
+			} 
+			if(username == null || username.length() == 0) {
+				pl.getLogger().severe("You haven't set a username");
+				return false;
+			} 
+			if(password == null || password.length() == 0 || password.equalsIgnoreCase("YourPassword")) {
+				pl.getLogger().severe("You haven't set a password or you are using the default.");
+				return false;
+			} 
+			if(database == null || database.length() == 0) {
+				pl.getLogger().severe("You haven't set a database");
+				return false;
+			} 
+			if(prefix == null || prefix.length() == 0) {
+				pl.getLogger().severe("You haven't set a table prefix");
+				return false;
+			}
 
-			    ds = new HikariDataSource(config);
-			    
-				createTables();
-				startMySQLHandler();
-				pl.getLogger().info("MySQL verbunden!");
-			}
-		}else {
-			SQLite.getSQLConnection();
-			if(MySQL.isConnected()) {
-				update("CREATE TABLE IF NOT EXISTS `" + prefix + "chunks` " + 
-						"(`id` INTEGER PRIMARY KEY," +
-						"`world` VARCHAR(255)," +
-						"`loc_x` INT(255) NOT NULL," +
-						"`loc_z` INT(255) NOT NULL," + 
-						"`version_created` VARCHAR(255) NOT NULL," + 
-						"`date_created` VARCHAR(255) NOT NULL," + 
-						"`version_modified` VARCHAR(255) NOT NULL," + 
-						"`date_modified` VARCHAR(255) NOT NULL);");
-			}
+		    config.setMaximumPoolSize(15);
+		    
+		    config.addDataSourceProperty("characterEncoding", "UTF-8");
+		    config.addDataSourceProperty("connectionTimeout", "28800");
+		    /* https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration */
+		    /* https://cdn.oreillystatic.com/en/assets/1/event/21/Connector_J%20Performance%20Gems%20Presentation.pdf */
+		    config.addDataSourceProperty("cachePrepStmts", "true");
+		    config.addDataSourceProperty("prepStmtCacheSize", "250");
+		    config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+		    config.addDataSourceProperty("useServerPrepStmts", "true");
+		    config.addDataSourceProperty("useLocalSessionState", "true");
+		    config.addDataSourceProperty("rewriteBatchedStatements", "true");
+		    config.addDataSourceProperty("cacheServerConfiguration", "true");
+		    config.addDataSourceProperty("maintainTimeStats", "false");
+	        config.addDataSourceProperty("useUnicode",true);
+	        config.addDataSourceProperty("allowMultiQueries",true);
+		    /* Disable SSL to suppress the unverified server identity warning */
+		    config.addDataSourceProperty("useSSL", "false");
+
+		    ds = new HikariDataSource(config);
+		    if(useMySQL) {
+		    	createTablesMySQL();
+		    }else {
+		    	createTablesSQLite();
+		    }
+			
+			startMySQLHandler();
+			pl.getLogger().info("SQL-Datenbank verbunden!");
 		}
 		return true;
 	}
     public static Connection getConnection() {
         try {
-			return ds.getConnection();
+        	if(c == null || c.isClosed()) {
+        		c = ds.getConnection();
+        		c.setAutoCommit(false);
+        	}
+        	
+			return c;
 		} catch (SQLException e) {
-			pl.getLogger().severe("Konnte keine Verbindung zu MySQL herstellen!");
+			try {
+				c.close();
+				ds.close();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			MySQL.connect();
+			pl.getLogger().severe("Konnte keine Verbindung zur SQL-Datenbank herstellen!");
 			e.printStackTrace();
 		}
         return null;
     }
-	public static void startMySQLHandler() {
-		// Automatically reconnect if connection is lost
-		Bukkit.getScheduler().runTaskTimerAsynchronously(pl, new Runnable() {
-			@Override
-			public void run() {
-				MySQL.connect();
-			}
-		}, 20*60, 20*15);
+	public static boolean isConnected() {
+		if(ds == null)
+			return false;
 		
+		if(ds.isClosed())
+			return false;
+		
+		return true;
+	}
+	public static void startMySQLHandler() {
 		// If a update failed, retry it until it is successful
 		Bukkit.getScheduler().runTaskTimerAsynchronously(pl, new Runnable() {
 			@Override
@@ -139,13 +160,13 @@ public class MySQL {
 			public void run() {
 				executeAllWaitingUpdates();
 			}
-		}, 20*60*5, 20*60*5);
+		}, 20*60*1, 20*60*1);
 	}
 	public static void executeAllWaitingUpdates() {
 		if(isUpdating)
 			return;
 		isUpdating = true;
-		if(!waitingUpdates.isEmpty()) {
+		if(!waitingUpdates.isEmpty() || ChunkManager.getAllChunks().size() != 0) {
 			pl.getLogger().info("Executing all waiting updates..");
 			Statement st;
 			Connection c = getConnection();
@@ -154,7 +175,11 @@ public class MySQL {
 				st = c.createStatement();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				ds.close();
+				try {
+					c.close();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 				return;
 			}
 			
@@ -174,23 +199,30 @@ public class MySQL {
 			
 			for(ChunkManager cm : ChunkManager.getAllChunks()) {
 				try {
-					st.executeUpdate(cm.getMySQLUpdateQuery());
-					cm.removeChunkFromCache();
+					String qry = cm.getMySQLUpdateQuery();
+					pl.getLogger().info("Executing Query: "+qry);
+					st.executeUpdate(qry);
 				} catch (SQLException e) {
 					pl.getLogger().info("Could not update! Query:"+cm.getMySQLUpdateQuery());
 				}
+				cm.removeChunkFromCache();
 				i++;
 			}
 			
 			try {
+				c.commit();
 				st.close();
-				c.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
+				try {
+					c.close();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 			}
 			Long took = (System.currentTimeMillis() - currentTime);
 			Long average = took/i;
-			pl.getLogger().info("Executed "+i+" updates. Took "+took+"ms ("+average+"ms/query).");
+			pl.getLogger().info("Executed "+i+" updates. Took "+took/1000+"s ("+average+"ms/query).");
 		}
 		isUpdating = false;
 	}
@@ -201,13 +233,18 @@ public class MySQL {
 			Statement st = c.createStatement();
 			st.executeUpdate(qry);
 			st.close();
-			c.close();
+			c.commit();
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			Main.pl.getLogger().severe("Konnte nicht mit MySQL kommunizieren! Der Query wird zur Warteschleife hinzugefügt.");
-			ds.close();
+			Main.pl.getLogger().severe("");
 			failedUpdates.add(qry);
+			try {
+				c.close();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
 			return false;
 		}
 	}
@@ -220,33 +257,17 @@ public class MySQL {
 			pl.getLogger().severe("There was an error whilst executing query: " + qry);
 			pl.getLogger().severe("Error:");
 			e.printStackTrace();
-			ds.close();
+			try {
+				c.close();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
 			return null;
 		} 
 	}
   
-	public static boolean isConnected() {
-		if(ds == null)
-			return false;
-		return ds.isClosed() ? false : true;
-		/*
-		Connection c = null;
-		try {
-			c = getConnection();
-		} catch (SQLException e1) {
-			e1.printStackTrace();
-		}
-		if (c == null)
-			return false; 
-		try {
-			if (c.isClosed())
-				return false; 
-		} catch (Exception e) {
-			return false;
-		} 
-		return true;*/
-	}
-	private static void createTables() {
+
+	private static void createTablesMySQL() {
 		try {
 			Connection c = getConnection();
 			Statement st = c.createStatement();
@@ -273,21 +294,42 @@ public class MySQL {
 					"`playTime` INT NOT NULL," + 
 					"`banReason` VARCHAR(255) NOT NULL," + 
 					"PRIMARY KEY (`id`)) ENGINE = InnoDB;");
-			
-			st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + prefix + "blocks` " + 
-					"(`id` INT NOT NULL AUTO_INCREMENT," +
-					"`block` VARCHAR(50) NOT NULL," +
-					"`trustlevel` INT NOT NULL," +
-					"`allowBreak` BOOLEAN NOT NULL," +
-					"PRIMARY KEY (`id`)) ENGINE = InnoDB;");
-			
+			c.commit();
 			st.close();
-			c.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 	
+	private static void createTablesSQLite() {
+		try {
+			Connection c = getConnection();
+			Statement st = c.createStatement();
+			// chunk table
+			st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + prefix + "chunks` " + 
+					"(`world` VARCHAR(255) NOT NULL," +
+					"`loc_x` INT NOT NULL," +
+					"`loc_z` INT NOT NULL," + 
+					"`version_created` VARCHAR(255) NOT NULL," + 
+					"`date_created` VARCHAR(255) NOT NULL," + 
+					"`version_modified` VARCHAR(255) NOT NULL," + 
+					"`date_modified` VARCHAR(255) NOT NULL);");
+			
+			st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + prefix + "players` " + 
+					"(`uuid` VARCHAR(50) NOT NULL," +
+					"`name` VARCHAR(16) NOT NULL," +
+					"`trustlevel` INT NOT NULL," +
+					"`firstJoined` DATETIME NOT NULL," +
+					"`lastJoined` DATETIME NOT NULL," + 
+					"`logoutLocation` VARCHAR(255) NOT NULL," + 
+					"`playTime` INT NOT NULL," + 
+					"`banReason` VARCHAR(255) NOT NULL);");
+			c.commit();
+			st.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	// ----------- //
 	// MySQl Utils //
@@ -399,7 +441,7 @@ public class MySQL {
 			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
-		} 
+		}
 		return result;
 	}
 	
@@ -424,4 +466,95 @@ public class MySQL {
 		} 
 		return false;
 	}
+	
+	
+	
+	/*
+	 private static HikariDataSource dsMySQL;
+	
+	public static void convertMySQLToSQLite() {
+		HikariConfig config = new HikariConfig();
+		
+	    config.setJdbcUrl("jdbc:mysql://"+host+":"+port+"/"+database);
+	    config.setUsername(username);
+	    config.setPassword(password);
+	    
+	    config.setMaximumPoolSize(15);
+	    
+	    config.addDataSourceProperty("characterEncoding", "UTF-8");
+	    config.addDataSourceProperty("connectionTimeout", "28800");
+	    config.addDataSourceProperty("cachePrepStmts", "true");
+	    config.addDataSourceProperty("prepStmtCacheSize", "250");
+	    config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+	    config.addDataSourceProperty("useServerPrepStmts", "true");
+	    config.addDataSourceProperty("useLocalSessionState", "true");
+	    config.addDataSourceProperty("rewriteBatchedStatements", "true");
+	    config.addDataSourceProperty("cacheServerConfiguration", "true");
+	    config.addDataSourceProperty("maintainTimeStats", "false");
+        config.addDataSourceProperty("useUnicode",true);
+        config.addDataSourceProperty("allowMultiQueries",true);
+	    config.addDataSourceProperty("useSSL", "false");
+
+	    dsMySQL = new HikariDataSource(config);
+	    
+	    
+		Connection c = getConnection();
+		
+		try {
+			Statement st = dsMySQL.getConnection().createStatement();
+			ResultSet rs = st.executeQuery("SELECT * FROM `"+MySQL.prefix+"chunks`");
+			
+			Statement stlite = c.createStatement();
+			
+			while(rs.next()) {
+				String world = rs.getString("world");
+				String date_created = rs.getString("date_created");
+				String version_created = rs.getString("version_created");
+				String date_modified = rs.getString("date_modified");
+				String version_modified = rs.getString("version_modified");
+				int x = rs.getInt("loc_x");
+				int z = rs.getInt("loc_z");
+				
+				String qry = "INSERT INTO `" + MySQL.prefix + "chunks` (`world`, `loc_x`, `loc_z`, `version_created`, `date_created`, `version_modified`, `date_modified`) VALUES" + 
+						"('"+world+"', '"+x+"', '"+z+"', '"+version_created+"', '"+date_created+"', '"+version_modified+"', '"+date_modified+"')";
+				pl.getLogger().info(qry);
+				stlite.executeUpdate(qry);
+				
+			}
+			c.commit();
+			rs.close();
+			stlite.close();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			Statement st = dsMySQL.getConnection().createStatement();
+			ResultSet rs = st.executeQuery("SELECT * FROM `"+MySQL.prefix+"players`");
+			
+			Statement stlite = c.createStatement();
+			
+			while(rs.next()) {
+				String uuid = rs.getString("uuid");
+				String name = rs.getString("name");
+				int trustlevel = rs.getInt("trustLevel");
+				Timestamp firstJoined = rs.getTimestamp("firstJoined");
+				Timestamp lastJoined = rs.getTimestamp("lastJoined");
+				int playTime = rs.getInt("playtime");
+				String banReason = rs.getString("banReason");
+				String location = rs.getString("logoutLocation");
+				
+				String qry = "INSERT INTO `"+MySQL.prefix+"players` (`uuid`, `name`, `trustlevel`, `firstJoined`, `lastJoined`, `logoutLocation`, `playTime`, `banReason`) VALUES"
+						+ "('"+uuid+"', '"+name+"', '"+trustlevel+"', '"+firstJoined+"', '"+lastJoined+"', '"+location+"', '"+playTime+"', '"+banReason+"')";
+				pl.getLogger().info(qry);
+				stlite.executeUpdate(qry);
+			}
+			c.commit();
+			stlite.close();
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	*/
 }

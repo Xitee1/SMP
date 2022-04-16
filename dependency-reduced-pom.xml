@@ -35,6 +35,13 @@
         </executions>
         <configuration />
       </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.3.1</version>
+        <configuration>
+          <outputDirectory>D:\Daten\PluginTestServer\plugins</outputDirectory>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   <repositories>
@@ -46,18 +53,28 @@
       <id>playpro-repo</id>
       <url>https://maven.playpro.com</url>
     </repository>
+    <repository>
+      <id>Sparky</id>
+      <url>https://nexus.sparky.ac/repository/Sparky/</url>
+    </repository>
   </repositories>
   <dependencies>
     <dependency>
       <groupId>io.papermc.paper</groupId>
       <artifactId>paper-api</artifactId>
-      <version>1.18.1-R0.1-SNAPSHOT</version>
+      <version>1.18.2-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>net.coreprotect</groupId>
       <artifactId>coreprotect</artifactId>
       <version>20.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>me.vagdedes.spartan</groupId>
+      <artifactId>SpartanAPI</artifactId>
+      <version>5.0</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

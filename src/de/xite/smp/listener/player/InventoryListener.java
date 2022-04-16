@@ -14,10 +14,20 @@ public class InventoryListener implements Listener {
 	public void onInventoryInteract(InventoryClickEvent e) {
 		if(e.getWhoClicked() instanceof Player) {
 			Player p = (Player) e.getWhoClicked();
-			if(SMPPlayer.getPlayer(p).getTrustLevel() == 1) {
-				if(e.getClickedInventory().getType() == InventoryType.CHEST) {
+			SMPPlayer smpp = SMPPlayer.getPlayer(p);
+			
+			if(smpp.getTrustLevel() == 1) {
+				InventoryType invType = e.getClickedInventory().getType();
+				if(invType != InventoryType.PLAYER && invType != InventoryType.CRAFTING && invType != InventoryType.WORKBENCH) {
 					e.setCancelled(true);
 					Messages.trustLevelNoAccess(p);
+					return;
+				}
+			}
+			
+			if(smpp.getTrustLevel() == 2) {
+				if(!SMPPlayer.isLVLmaxOnline()) {
+					Messages.trustLevelOnlineNeeded(p);
 					return;
 				}
 			}

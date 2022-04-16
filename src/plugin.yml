@@ -2,7 +2,7 @@ name: SMP
 version: 1.0
 author: Xitee
 main: de.xite.smp.main.Main
-depend: [CoreProtect]
+depend: [CoreProtect, Spartan]
 api-version: 1.13
 commands:
   trustlevel:

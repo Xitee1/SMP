@@ -111,7 +111,7 @@ public class ChunkInfoCommand implements CommandExecutor {
 							version_modified = rs.getString("version_modified");
 						}
 						
-						if(date_modified.equals("none") && version_modified.equals("none")) {
+						if(date_modified.equals("none")) {
 							Actionbar.sendActionBar(p, ChatColor.GREEN+"ChunkInfo "+ChatColor.DARK_GRAY+"| "+ChatColor.GRAY+ 
 									"Erstellt am "+ChatColor.AQUA+date_created+ChatColor.GRAY+" mit der Version "+ChatColor.AQUA+version_created+ChatColor.DARK_GRAY+" | "+ChatColor.GRAY+ 
 									"Originalzustand", 60*60);

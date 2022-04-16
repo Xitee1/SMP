@@ -50,11 +50,6 @@ public class JoinQuitListener implements Listener {
 		// Permissions
 		PermissionAttachment perms = p.addAttachment(Main.pl);
 		perms.setPermission("trustlevel.level."+trustlevel, true);
-		if(trustlevel == 6) {
-			perms.setPermission("spartan.bypass", true);
-			perms.setPermission("spartan.punishment", true);
-		}
-			
 		
 		e.joinMessage(Component.text(ChatColor.YELLOW + p.getName() + " hat das Spiel betreten."));
 	}

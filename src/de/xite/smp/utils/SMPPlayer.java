@@ -68,8 +68,8 @@ public class SMPPlayer {
 				}else {
 					this.name = NameFetcher.getName(uuid);
 				}
-				st.executeUpdate("INSERT INTO `"+MySQL.prefix+"players` (`id`, `uuid`, `name`, `trustlevel`, `firstJoined`, `lastJoined`, `logoutLocation`, `playTime`, `banReason`) VALUES"
-						+ "(NULL, '"+uuid+"', '"+this.name+"', '1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'world%0%0%0%0%0', '0', 'none')");
+				st.executeUpdate("INSERT INTO `"+MySQL.prefix+"players` (`uuid`, `name`, `trustlevel`, `firstJoined`, `lastJoined`, `logoutLocation`, `playTime`, `banReason`) VALUES"
+						+ "('"+uuid+"', '"+this.name+"', '1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'world%0%0%0%0%0', '0', 'none')");
 				this.trustlevel = 1;
 				this.firstJoined = Timestamp.valueOf(LocalDateTime.now());
 				this.lastJoined = Timestamp.valueOf(LocalDateTime.now());

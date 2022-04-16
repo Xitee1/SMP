@@ -1,5 +1,6 @@
 package de.xite.smp.main;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import de.xite.smp.utils.Actionbar;
@@ -18,5 +19,13 @@ public class Messages {
 	public static void trustLevelDangerousBlock(Player p) {
 		Actionbar.sendActionBar(p, 
 				ChatColor.RED+"Du benötigst TrustLevel "+ChatColor.YELLOW+"4"+ChatColor.RED+", um dies zu tun. Mehr Infos: "+ChatColor.AQUA+"/trustlevel");
+	}
+	
+	public static void broadcastToMaxTrustLevelPlayers(String message) {
+		for(Player all : Bukkit.getOnlinePlayers()) {
+			if(SMPPlayer.getPlayer(all).getTrustLevel() == SMPPlayer.maxTrustLevel) {
+				all.sendMessage(message);
+			}
+		}
 	}
 }

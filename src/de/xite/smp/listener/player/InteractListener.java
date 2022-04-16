@@ -14,6 +14,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import de.xite.smp.commands.BlockInfoCommand;
 import de.xite.smp.commands.TrustLevelCommand;
 import de.xite.smp.main.Main;
+import de.xite.smp.main.Messages;
+import de.xite.smp.utils.SMPPlayer;
 import de.xite.smp.utils.TimeUtils;
 import net.coreprotect.CoreProtectAPI;
 import net.coreprotect.CoreProtectAPI.ParseResult;
@@ -30,10 +32,65 @@ public class InteractListener implements Listener {
 			return;
 		}
 		
-		if(!TrustLevelCommand.checkBlockBreakPlace(p, e.getMaterial())) {
-			e.setCancelled(true);
-			return;
+		Block b = e.getClickedBlock();
+		if(b != null) {
+			Material m = b.getType();
+			if(!isPlayerAllowedToInteract(p, m)) {
+				e.setCancelled(true);
+				return;
+			}
 		}
+	}
+	
+	private Boolean isPlayerAllowedToInteract(Player p, Material m) {
+		/*
+		 *  Check if the player is allowed to interact with the Material.
+		 *  If it is in the allowed TL 1 list, return true. Block break / place will be checked later.
+		 */
+		if(Main.interactAllowedTrustLevel1.contains(m)) {
+			return true;
+		}
+		
+		// If the Material is not in the list, check what rights he has
+		SMPPlayer smpp = SMPPlayer.getPlayer(p);
+		
+		if(smpp.getTrustLevel() == 1) {
+			Messages.trustLevelNoAccess(p);
+			return false;
+		}
+		if(smpp.getTrustLevel() == 2) {
+			if(!SMPPlayer.isLVLmaxOnline()) {
+				Messages.trustLevelOnlineNeeded(p);
+				return false;
+			}else {
+				if(Main.dangerousBlocks.contains(m)) {
+					Messages.trustLevelDangerousBlock(p);
+					sendDangerousInteract(p, m);
+					return false;
+				}
+			}
+		}
+		if(smpp.getTrustLevel() == 3) {
+			if(Main.dangerousBlocks.contains(m)) {
+				Messages.trustLevelDangerousBlock(p);
+				sendDangerousInteract(p, m);
+				return false;
+			}
+		}
+		if(smpp.getTrustLevel() == 4) {
+			if(!SMPPlayer.isLVLmaxOnline()) {
+				if(Main.dangerousBlocks.contains(m)) {
+					Messages.trustLevelOnlineNeeded(p);
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	private void sendDangerousInteract(Player p, Material m) {
+		Messages.broadcastToMaxTrustLevelPlayers(TrustLevelCommand.pr+ChatColor.RED+"Der Spieler "+ChatColor.YELLOW+p.getName()+ChatColor.RED+" hat versucht, mit "
+				+ChatColor.DARK_AQUA+m+ChatColor.RED+" zu interagieren!");
 	}
 	
 	private static void sendBlockInfo(Player p, PlayerInteractEvent e) {

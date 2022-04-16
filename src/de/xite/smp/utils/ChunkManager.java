@@ -2,9 +2,9 @@ package de.xite.smp.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import org.bukkit.Chunk;
 
@@ -15,26 +15,27 @@ public class ChunkManager {
 	private static HashMap<Chunk, ChunkManager> chunks = new HashMap<>();
 	
 	Chunk chunk;
-	String dateModified = null;
-	String versionModified = null;
+	String dateModified = "";
+	String versionModified = Main.MCVersion;
+	Boolean isNew = false;
 	
 	private ChunkManager(Chunk chunk) {
 		this.chunk = chunk;
-		this.versionModified = Main.MCVersion;
 	}
-	public static ChunkManager getChunk(Chunk chunk, boolean insertToCache) {
-		if(insertToCache) {
-			if(!chunks.containsKey(chunk))
-				chunks.put(chunk, new ChunkManager(chunk));
-		}else if(!chunks.containsKey(chunk)) {
+	public static ChunkManager getChunk(Chunk chunk, boolean cache) {
+		if(!cache) {
+			if(chunks.containsKey(chunk))
+				return chunks.get(chunk);
 			return null;
 		}
+		
+		if(!chunks.containsKey(chunk))
+			chunks.put(chunk, new ChunkManager(chunk));
 		return chunks.get(chunk);
 	}
-	public static ArrayList<ChunkManager> getAllChunks() {
+	public static Collection<ChunkManager> getAllChunks() {
 		ArrayList<ChunkManager> list = new ArrayList<>();
-		for(Entry<Chunk, ChunkManager> e : chunks.entrySet())
-			list.add(e.getValue());
+		list.addAll(chunks.values());
 		return list;
 	}
 	
@@ -51,10 +52,11 @@ public class ChunkManager {
 	public void removeChunkFromCache() {
 		chunks.remove(this.chunk);
 	}
+	
 	public String getMySQLUpdateQuery() {
 		if(dateModified == null || versionModified == null)
 			return "";
 		return("UPDATE `"+MySQL.prefix+"chunks` SET `version_modified`='"+versionModified+"', `date_modified`='"+dateModified+"' " + 
-								"WHERE `world`='"+chunk.getWorld().getName()+"' AND `loc_x`='"+chunk.getX()+"' AND `loc_z`='"+chunk.getZ()+"';");
+				"WHERE `world`='"+chunk.getWorld().getName()+"' AND `loc_x`='"+chunk.getX()+"' AND `loc_z`='"+chunk.getZ()+"';");
 	}
 }

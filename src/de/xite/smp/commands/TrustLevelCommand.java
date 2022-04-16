@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,7 +11,6 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import de.xite.smp.main.Main;
-import de.xite.smp.main.Messages;
 import de.xite.smp.utils.SMPPlayer;
 import de.xite.smp.utils.UUIDFetcher;
 import net.md_5.bungee.api.ChatColor;
@@ -20,7 +18,7 @@ import net.md_5.bungee.api.ChatColor;
 public class TrustLevelCommand implements CommandExecutor, TabCompleter{
 	static Main pl = Main.pl;
 	
-	String pr = ChatColor.GRAY+"["+ChatColor.RED+"Trustlevel"+ChatColor.GRAY+"] ";
+	public static String pr = ChatColor.GRAY+"["+ChatColor.RED+"TrustLevel"+ChatColor.GRAY+"] ";
 
 	@Override
 	public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
@@ -128,37 +126,5 @@ public class TrustLevelCommand implements CommandExecutor, TabCompleter{
 		return list;
 	}
 	
-	public static Boolean checkBlockBreakPlace(Player p, Material m) {
-		SMPPlayer sp = SMPPlayer.getPlayer(p);
-		if(sp.getTrustLevel() == 1) {
-			Messages.trustLevelNoAccess(p);
-			return false;
-		}
-		if(sp.getTrustLevel() == 2) {
-			if(!SMPPlayer.isLVLmaxOnline()) {
-				Messages.trustLevelOnlineNeeded(p);
-				return false;
-			}else {
-				if(Main.dangerousBlocks.contains(m)) {
-					Messages.trustLevelDangerousBlock(p);
-					return false;
-				}
-			}
-		}
-		if(sp.getTrustLevel() == 3) {
-			if(Main.dangerousBlocks.contains(m)) {
-				Messages.trustLevelDangerousBlock(p);
-				return false;
-			}
-		}
-		if(sp.getTrustLevel() == 4) {
-			if(!SMPPlayer.isLVLmaxOnline()) {
-				if(Main.dangerousBlocks.contains(m)) {
-					Messages.trustLevelOnlineNeeded(p);
-					return false;
-				}
-			}
-		}
-		return true;
-	}
+
 }
