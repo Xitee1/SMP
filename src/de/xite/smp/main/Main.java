@@ -26,6 +26,7 @@ import de.xite.smp.discord.DiscordChatListener;
 import de.xite.smp.discord.SMPcord;
 import de.xite.smp.listener.entity.EntityDamageListener;
 import de.xite.smp.listener.entity.EntityMountListener;
+import de.xite.smp.listener.entity.EntitySpawnListener;
 import de.xite.smp.listener.entity.EntityTargetListener;
 import de.xite.smp.listener.external.SpartanAnticheat;
 import de.xite.smp.listener.player.BlockBreakPlaceListener;
@@ -105,6 +106,7 @@ public class Main extends JavaPlugin{
 		pm.registerEvents(new EntityDamageListener(), this);
 		pm.registerEvents(new EntityMountListener(), this);
 		pm.registerEvents(new EntityTargetListener(), this);
+		pm.registerEvents(new EntitySpawnListener(), this);
 		pm.registerEvents(new FoodChangeListener(), this);
 		pm.registerEvents(new InteractListener(), this);
 		pm.registerEvents(new InventoryListener(), this);
