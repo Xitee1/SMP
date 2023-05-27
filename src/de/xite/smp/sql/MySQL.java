@@ -200,7 +200,7 @@ public class MySQL {
 			for(ChunkManager cm : ChunkManager.getAllChunks()) {
 				try {
 					String qry = cm.getMySQLUpdateQuery();
-					pl.getLogger().info("Executing Query: "+qry);
+					//pl.getLogger().info("Executing Query: "+qry);
 					st.executeUpdate(qry);
 				} catch (SQLException e) {
 					pl.getLogger().info("Could not update! Query:"+cm.getMySQLUpdateQuery());

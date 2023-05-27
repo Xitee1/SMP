@@ -1,5 +1,6 @@
 package de.xite.smp.discord;
 
+import net.dv8tion.jda.api.JDA;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -20,16 +21,19 @@ public class DiscordChatListener extends ListenerAdapter implements Listener{
 	// Minecraft
 	@EventHandler
 	public void onMCChat(AsyncChatEvent e) {
-		for(TextChannel tc : SMPcord.getJDA().getTextChannels()) {
-			if(tc.getName().contains(textChannel)) {
-				if(tc.canTalk()) {
-					String msg = PlainTextComponentSerializer.plainText().serialize(e.message());
-					String player = e.getPlayer().getName();
-					
-    			    tc.sendMessage("** **\n"
-    			    		+ "[MC] "+player+"\n"
-    			    		+ "```"+msg+"```")
-    			    	.queue();
+		JDA jda = SMPcord.getJDA();
+		if(jda != null) {
+			for(TextChannel tc : jda.getTextChannels()) {
+				if(tc.getName().contains(textChannel)) {
+					if(tc.canTalk()) {
+						String msg = PlainTextComponentSerializer.plainText().serialize(e.message());
+						String player = e.getPlayer().getName();
+
+						tc.sendMessage("** **\n"
+										+ "[MC] "+player+"\n"
+										+ "```"+msg+"```")
+								.queue();
+					}
 				}
 			}
 		}

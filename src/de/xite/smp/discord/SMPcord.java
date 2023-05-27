@@ -11,6 +11,8 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 public class SMPcord {
 	static Main pl = Main.pl;
+
+	static boolean running = false;
 	
 	String roleID_trustLevel_1 = "xxx";
 	String roleID_trustLevel_2 = "xxx";
@@ -38,10 +40,13 @@ public class SMPcord {
 		
 		try {
 			jda = builder.build();
+			pl.getLogger().info("Discord Bot ist online!");
+			running = true;
 		} catch (LoginException e) {
 			e.printStackTrace();
+			pl.getLogger().info("Der Discord Bot konnte nicht gestartet werden!");
 		}
-		pl.getLogger().info("Discord Bot ist online!");
+
 	}
 	
 	public static JDA getJDA() {
