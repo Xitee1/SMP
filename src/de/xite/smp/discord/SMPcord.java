@@ -11,8 +11,6 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 public class SMPcord {
 	static Main pl = Main.pl;
-
-	static boolean running = false;
 	
 	String roleID_trustLevel_1 = "xxx";
 	String roleID_trustLevel_2 = "xxx";
@@ -21,12 +19,12 @@ public class SMPcord {
 	String roleID_trustLevel_5 = "xxx";
 	String roleID_trustLevel_6 = "xxx";
 	
-	private static String token = "OTY0NjQ5NzI4ODk1NzQ2MTk4.YlnuEQ.gWQhANrtWWD41Cxn4IlXG8-MbXM";
+	private static String token = pl.getConfig().getString("discord.token");
 	
 	private static JDA jda;
 	
 	public static void connectDiscord() {
-		pl.getLogger().info("Starte den Discord Bot..");
+		pl.getLogger().info("Starting Discord bot..");
 		JDABuilder builder = JDABuilder.createDefault(token);
 		
 		builder.disableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE);
@@ -40,11 +38,10 @@ public class SMPcord {
 		
 		try {
 			jda = builder.build();
-			pl.getLogger().info("Discord Bot ist online!");
-			running = true;
+			pl.getLogger().info("Discord bot is online!");
 		} catch (LoginException e) {
 			e.printStackTrace();
-			pl.getLogger().info("Der Discord Bot konnte nicht gestartet werden!");
+			pl.getLogger().info("Could not start Discord bot!");
 		}
 
 	}

@@ -16,24 +16,22 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class DiscordChatListener extends ListenerAdapter implements Listener{
-	String textChannel = "chat";
+	String textChannel = Main.pl.getConfig().getString("discord.chatChannel");
 	
 	// Minecraft
 	@EventHandler
 	public void onMCChat(AsyncChatEvent e) {
 		JDA jda = SMPcord.getJDA();
 		if(jda != null) {
-			for(TextChannel tc : jda.getTextChannels()) {
-				if(tc.getName().contains(textChannel)) {
-					if(tc.canTalk()) {
-						String msg = PlainTextComponentSerializer.plainText().serialize(e.message());
-						String player = e.getPlayer().getName();
+			for(TextChannel tc : jda.getTextChannelsByName(textChannel, false)) {
+				if(tc.canTalk()) {
+					String msg = PlainTextComponentSerializer.plainText().serialize(e.message());
+					String player = e.getPlayer().getName();
 
-						tc.sendMessage("** **\n"
-										+ "[MC] "+player+"\n"
-										+ "```"+msg+"```")
-								.queue();
-					}
+					tc.sendMessage("** **\n"
+									+ "[MC] "+player+"\n"
+									+ "```"+msg+"```")
+							.queue();
 				}
 			}
 		}
@@ -45,7 +43,7 @@ public class DiscordChatListener extends ListenerAdapter implements Listener{
         Message msg = e.getMessage();
         
         if(!e.getAuthor().isBot()) {
-            if(e.getChannel().getName().contains(textChannel)) {
+            if(e.getChannel().getName().equals(textChannel)) {
             	final TextComponent textComponent = Component.text("[Discord] ").color(TextColor.fromCSSHexString("#5865f2"))
             											.append(Component.text("<"+e.getAuthor().getName()+"> ").color(TextColor.fromCSSHexString("#009c9b")))
             											.append(Component.text(msg.getContentRaw()).color(TextColor.fromCSSHexString("#c8c4c4")));

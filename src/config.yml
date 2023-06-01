@@ -12,6 +12,10 @@ mysql:
   database: 'minecraft'
   table-prefix: 'smp_'
   useSSL: true
+
+discord:
+  token: 'xxx'
+  chatChannel: 'chat'
   
 ##############
 ### Blöcke ###
