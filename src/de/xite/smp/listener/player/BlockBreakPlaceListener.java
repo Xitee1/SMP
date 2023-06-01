@@ -49,7 +49,7 @@ public class BlockBreakPlaceListener implements Listener {
 		 * because the player is only allowed to interact with them, not break or place them.
 		 */
 		
-		SMPPlayer smpp = SMPPlayer.getPlayer(p);
+		SMPPlayer smpp = SMPPlayer.getPlayer(p.getUniqueId());
 		
 		if(smpp.getTrustLevel() == 1) {
 			Messages.trustLevelNoAccess(p);

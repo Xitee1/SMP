@@ -3,7 +3,7 @@ version: 1.0
 author: Xitee
 main: de.xite.smp.main.Main
 depend: [CoreProtect, Spartan]
-api-version: 1.13
+api-version: 1.19
 commands:
   trustlevel:
   chunkinfo:

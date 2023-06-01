@@ -12,7 +12,7 @@ public class FoodChangeListener implements Listener{
 	public void onFoodChange(FoodLevelChangeEvent e) {
 		if(e.getEntity() instanceof Player) {
 			Player p = (Player) e.getEntity();
-			if(SMPPlayer.getPlayer(p).getTrustLevel() == 1) {
+			if(SMPPlayer.getPlayer(p.getUniqueId()).getTrustLevel() == 1) {
 				e.setCancelled(true);
 			}
 		}

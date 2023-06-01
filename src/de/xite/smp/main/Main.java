@@ -67,12 +67,7 @@ public class Main extends JavaPlugin{
 		MySQL.connect();
 		
 		// Start up the bot
-		Bukkit.getScheduler().runTaskAsynchronously(pl, new Runnable() {
-			@Override
-			public void run() {
-				SMPcord.connectDiscord();
-			}
-		});
+		// Bukkit.getScheduler().runTaskAsynchronously(pl, SMPcord::connectDiscord);
 		
 		String vstring = Bukkit.getBukkitVersion();
 		MCVersion = vstring.substring(0, vstring.lastIndexOf("-R")).replace("_", ".");
@@ -126,18 +121,17 @@ public class Main extends JavaPlugin{
 	@Override
 	public void onDisable() {
 		MySQL.executeAllWaitingUpdates();
-		
-		
+
 		// Prevent the hoster from deleting the logs
 		pl.getLogger().info("Moving logs..");
-		File logFile = new File("logs/latest.log");
 		File destinationFolder = new File("server_logs");
+		File originalLogFile = new File("logs/latest.log");
 		if(!destinationFolder.exists())
 			destinationFolder.mkdir();
-		if(logFile.exists()) {
-			SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy__HH_mm");
+		if(originalLogFile.exists()) {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd__HH_mm");
 			try {
-				Files.copy(logFile, new File(destinationFolder.getAbsolutePath()+"/"+sdf.format(new Date())+".log"));
+				Files.copy(originalLogFile, new File(destinationFolder.getAbsolutePath()+"/"+sdf.format(new Date())+".log"));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -147,12 +141,12 @@ public class Main extends JavaPlugin{
 	public static CoreProtectAPI getCoreProtect() {
 		Plugin plugin = pl.getServer().getPluginManager().getPlugin("CoreProtect");
 		// Check that CoreProtect is loaded
-		if(plugin == null || !(plugin instanceof CoreProtect)) {
+		if(!(plugin instanceof CoreProtect)) {
 			return null;
 		}
 		// Check that the API is enabled
 		CoreProtectAPI CoreProtect = ((CoreProtect) plugin).getAPI();
-		if(CoreProtect.isEnabled() == false) {
+		if(!CoreProtect.isEnabled()) {
 			return null;
 		}
 		// Check that a compatible version of the API is loaded

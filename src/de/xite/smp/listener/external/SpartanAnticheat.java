@@ -12,7 +12,7 @@ public class SpartanAnticheat implements Listener {
 	@EventHandler
 	public void Event(PlayerViolationEvent e) {
 		Player p = e.getPlayer();
-		if(SMPPlayer.getPlayer(p).getTrustLevel() == SMPPlayer.maxTrustLevel) {
+		if(SMPPlayer.getPlayer(p.getUniqueId()).getTrustLevel() == SMPPlayer.maxTrustLevel) {
 			e.setCancelled(true);
 		}
 	}

@@ -52,7 +52,7 @@ public class InteractListener implements Listener {
 		}
 		
 		// If the Material is not in the list, check what rights he has
-		SMPPlayer smpp = SMPPlayer.getPlayer(p);
+		SMPPlayer smpp = SMPPlayer.getPlayer(p.getUniqueId());
 		
 		if(smpp.getTrustLevel() == 1) {
 			Messages.trustLevelNoAccess(p);

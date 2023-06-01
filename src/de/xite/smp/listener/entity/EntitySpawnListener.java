@@ -11,7 +11,6 @@ public class EntitySpawnListener implements @NotNull Listener {
 	public void onSpawn(EntitySpawnEvent e) {
 		if(e.getEntityType() == EntityType.PHANTOM) {
 			e.setCancelled(true);
-			return;
 		}
 	}
 }

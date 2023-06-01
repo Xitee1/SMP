@@ -25,12 +25,14 @@ public class TrustLevelCommand implements CommandExecutor, TabCompleter{
 		if(args.length == 0) {
 			if(s instanceof Player) {
 				Player p = (Player) s;
-				SMPPlayer sp = SMPPlayer.getPlayer(p);
+				SMPPlayer sp = SMPPlayer.getPlayer(p.getUniqueId());
+				if(!checkSMPPlayer(sp, s))
+					return true;
 				
 				p.sendMessage(pr+"Dein aktuelles TrustLevel ist "+ChatColor.YELLOW+sp.getTrustLevel()+ChatColor.GRAY+"/"+ChatColor.YELLOW+SMPPlayer.maxTrustLevel+ChatColor.GRAY+".");
-				if(sp.getTrustLevel() == 0) {
-					p.sendMessage(pr+"Um auf Stufe 1 zu kommen, betrete bitte unseren Discord (https://discord.gg/PZ2fHC3Wwr) und frag Xitee (Owner).");
-					p.sendMessage(pr+"Mit TrustLevel 1 hast du schon sehr viele Freiheiten und kannst überall bauen (wenn jmd. mit Level "+SMPPlayer.maxTrustLevel+" online ist).");
+				if(sp.getTrustLevel() < SMPPlayer.maxTrustLevel) {
+					p.sendMessage(pr+"Um auf Stufe "+(sp.getTrustLevel() + 1)+" zu kommen, betrete bitte unseren Discord (https://discord.gg/PZ2fHC3Wwr).");
+					p.sendMessage(pr+"Bitte beachte, dass du am Anfang nur wenige Rechte bekommst, um Griefing zu vermeiden.");
 				}
 			}
 		}else if(args.length == 2 && args[0].equalsIgnoreCase("promote")) {
@@ -42,6 +44,8 @@ public class TrustLevelCommand implements CommandExecutor, TabCompleter{
 				}
 			}
 			SMPPlayer sp = SMPPlayer.getPlayer(UUIDFetcher.getUUID(args[1]));
+			if(!checkSMPPlayer(sp, s))
+				return true;
 			if(sp.getTrustLevel() == SMPPlayer.maxTrustLevel) {
 				s.sendMessage(pr+ChatColor.RED+"Der Spieler "+ChatColor.YELLOW+args[1]+ChatColor.RED+" ist bereits auf der höchsten Stufe.");
 			}else {
@@ -60,6 +64,8 @@ public class TrustLevelCommand implements CommandExecutor, TabCompleter{
 				}
 			}
 			SMPPlayer sp = SMPPlayer.getPlayer(UUIDFetcher.getUUID(args[1]));
+			if(!checkSMPPlayer(sp, s))
+				return true;
 			if(sp.getTrustLevel() == 1) {
 				s.sendMessage(pr+ChatColor.RED+"Der Spieler "+ChatColor.YELLOW+args[1]+ChatColor.RED+" ist bereits auf der niedrigsten Stufe.");
 			}else {
@@ -83,6 +89,8 @@ public class TrustLevelCommand implements CommandExecutor, TabCompleter{
 			}
 			
 			SMPPlayer sp = SMPPlayer.getPlayer(UUIDFetcher.getUUID(args[1]));
+			if(!checkSMPPlayer(sp, s))
+				return true;
 			if(i < 1 || i > SMPPlayer.maxTrustLevel) {
 				s.sendMessage(pr+ChatColor.RED+"Ungültige Eingabe. Gültige TrustLevel: "+ChatColor.YELLOW+"1"+ChatColor.GRAY+"-"+ChatColor.YELLOW+SMPPlayer.maxTrustLevel);
 			}else {
@@ -120,11 +128,22 @@ public class TrustLevelCommand implements CommandExecutor, TabCompleter{
 		}
 		if(args.length == 3 && args[0].equalsIgnoreCase("set")) {
 			for(int i = 1; i <= SMPPlayer.maxTrustLevel; i++)
-				list.add(i+"");
+				list.add(String.valueOf(i));
 		}
 		
 		return list;
 	}
 	
+	private boolean checkSMPPlayer(SMPPlayer smpp, CommandSender s) {
+		if(smpp == null) {
+			s.sendMessage(pr+ChatColor.RED+"Der angefordete Spieler konnte nicht geladen werden!");
+			return false;
+		}
+		return true;
+	}
 
+
+	private static void showTrustLevel(CommandSender s) {
+
+	}
 }

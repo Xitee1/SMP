@@ -23,7 +23,7 @@ public class Messages {
 	
 	public static void broadcastToMaxTrustLevelPlayers(String message) {
 		for(Player all : Bukkit.getOnlinePlayers()) {
-			if(SMPPlayer.getPlayer(all).getTrustLevel() == SMPPlayer.maxTrustLevel) {
+			if(SMPPlayer.getPlayer(all.getUniqueId()).getTrustLevel() == SMPPlayer.maxTrustLevel) {
 				all.sendMessage(message);
 			}
 		}

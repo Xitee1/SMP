@@ -1,10 +1,7 @@
 package de.xite.smp.utils;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
+import java.awt.*;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.UUID;
@@ -23,8 +20,8 @@ public class SMPPlayer {
 	
 	String name, banReason = "Deine Spielerdaten konnten nicht geladen werden. Bitte versuche es später erneut.";
 	UUID uuid;
-	Integer trustlevel, playTime;
-	Timestamp firstJoined, lastJoined;
+	Integer trustlevel = 1, playTime = 0;
+	Timestamp firstJoined = null, lastJoined = null;
 	Location logoutLocaction;
 	
 	
@@ -40,11 +37,10 @@ public class SMPPlayer {
 	
 	private SMPPlayer(UUID uuid) {
 		try {
-			Connection c = MySQL.getConnection();
-			Statement st = c.createStatement();
+			Statement st = MySQL.getConnection().createStatement();
 			ResultSet rs = st.executeQuery("SELECT * FROM `"+MySQL.prefix+"players` WHERE `uuid`='"+uuid+"'");
-			this.uuid = uuid;
 			if(rs.next()) {
+				this.uuid = uuid;
 				this.name = rs.getString("name");
 				this.trustlevel = rs.getInt("trustLevel");
 				this.firstJoined = rs.getTimestamp("firstJoined");
@@ -54,98 +50,114 @@ public class SMPPlayer {
 				String[] location = rs.getString("logoutLocation").split("%");
 				this.logoutLocaction = new Location(Bukkit.getWorld(location[0]), Double.parseDouble(location[1]), Double.parseDouble(location[2]), Double.parseDouble(location[3]),
 						Float.parseFloat(location[4]), Float.parseFloat(location[5]));
-			}else {
-				Player p = Bukkit.getPlayer(uuid);
-				if(p != null) {
-					this.name = p.getName();
-					Bukkit.getScheduler().runTaskLater(Main.pl, new Runnable() {
-						@Override
-						public void run() {
-							for(Player all : Bukkit.getOnlinePlayers())
-								all.sendMessage(ChatColor.GREEN+"Neuer Spieler! Herzlich Willkommen, "+ChatColor.YELLOW+p.getName()+ChatColor.GREEN+"!");
-						}
-					}, 20);
-				}else {
-					this.name = NameFetcher.getName(uuid);
-				}
-				st.executeUpdate("INSERT INTO `"+MySQL.prefix+"players` (`uuid`, `name`, `trustlevel`, `firstJoined`, `lastJoined`, `logoutLocation`, `playTime`, `banReason`) VALUES"
-						+ "('"+uuid+"', '"+this.name+"', '1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'world%0%0%0%0%0', '0', 'none')");
-				this.trustlevel = 1;
-				this.firstJoined = Timestamp.valueOf(LocalDateTime.now());
-				this.lastJoined = Timestamp.valueOf(LocalDateTime.now());
-				this.logoutLocaction = null;
-				this.playTime = 0;
-				this.banReason = "none";
-				
-				
 			}
 			rs.close();
 			st.close();
-			c.close();
 		} catch (SQLException e1) {
+			Main.pl.getLogger().severe("Could not load player with UUID "+uuid+"!");
 			e1.printStackTrace();
 		}
 	}
 	public static SMPPlayer getPlayer(UUID uuid) {
-		if(!players.containsKey(uuid))
-			players.put(uuid, new SMPPlayer(uuid));
+		if(!players.containsKey(uuid)) {
+			SMPPlayer smpPlayer = new SMPPlayer(uuid);
+			// Validate that the player has been loaded successfully
+			if(smpPlayer.getName() == null)
+				return null;
+			players.put(uuid, smpPlayer);
+		}
+
 		return players.get(uuid);
 	}
-	public static SMPPlayer getPlayer(Player p) {
-		return getPlayer(p.getUniqueId());
+
+	public static void unloadSMPPlayer(UUID uuid) {
+		players.remove(uuid);
+	}
+
+	public static SMPPlayer create(UUID uuid) {
+		Player p = Bukkit.getPlayer(uuid);
+		if(p != null) {
+			try {
+				Statement st = MySQL.getConnection().createStatement();
+				st.executeUpdate("INSERT INTO `"+MySQL.prefix+"players` (`uuid`, `name`, `trustlevel`, `firstJoined`, `lastJoined`, `logoutLocation`, `playTime`, `banReason`) VALUES"
+						+ "('"+uuid+"', '"+p.getName()+"', '1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'world%0%0%0%0%0', '0', 'none')");
+				st.close();
+				return getPlayer(uuid);
+			}catch (SQLException e) {
+				Main.pl.getLogger().severe("Could not create new player with UUID "+uuid+"!");
+			}
+		}else {
+			Main.pl.getLogger().severe("Player must be online in order to create SMPPlayer");
+		}
+		return null; // Validate that the player has actually been created
 	}
 	
-	public static UUID getUUID(String name) {
-		Statement st;
-		UUID uuid = null;
-		try {
-			Connection c = MySQL.getConnection();
-			st = c.createStatement();
-			uuid = UUID.fromString(MySQL.getString(st, MySQL.prefix+"players", "uuid", "`name`='"+name+"'"));
-			st.close();
-			c.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return uuid;
+	public static UUID nameToUUID(String name) {
+		String uuid = MySQL.getString("players", "uuid", "`name`='"+name+"'");
+		if(uuid == null)
+			return null;
+		return UUID.fromString(uuid);
 	}
+	// ------------- //
+	// General utils //
+	// ------------- //
 	public static Boolean isLVLmaxOnline() {
 		for(Player all : Bukkit.getOnlinePlayers())
-			if(SMPPlayer.getPlayer(all).getTrustLevel() == maxTrustLevel)
+			if(SMPPlayer.getPlayer(all.getUniqueId()).getTrustLevel() == maxTrustLevel)
 				return true;
 		return false;
 	}
-	
-	
-	public void remove() {
-		if(players.containsKey(uuid))
-			players.remove(uuid);
+
+	private void updateSQLPlayerValue(String key, String value) {
+		MySQL.update("UPDATE `"+MySQL.prefix+"players` SET `"+key+"`='"+value+"' WHERE `uuid`='"+this.uuid+"'");
 	}
-	
+
+	// ---------------- //
+	// SMPPlayer object //
+	// ---------------- //
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		updateSQLPlayerValue("name", name);
+		this.name = name;
+	}
+
 	// Trust Level
-	public void setTrustLevel(int level) {
-		MySQL.update("UPDATE `"+MySQL.prefix+"players` SET `trustLevel`='"+level+"' WHERE `uuid`='"+this.uuid+"'");
-		this.trustlevel = level;
-	}
 	public Integer getTrustLevel() {
 		return this.trustlevel;
 	}
+	public void setTrustLevel(int level) {
+		updateSQLPlayerValue("trustlevel", String.valueOf(level));
+		this.trustlevel = level;
+	}
+
 	
 	// First joined
+	/*
 	public Timestamp getFirstJoined() {
 		return this.firstJoined;
 	}
-	
+	public void setFirstJoined(Timestamp date) {
+		updateSQLPlayerValue("firstjoined", null);
+	}
+	*/
 	// Last joined
+	/*
 	public void setLastJoined() {
 		MySQL.update("UPDATE `"+MySQL.prefix+"players` SET `lastJoined`=CURRENT_TIMESTAMP WHERE `uuid`='"+this.uuid+"'");
 	}
 	public Timestamp getLastJoined() {
 		return this.lastJoined;
 	}
+	 */
 	
 	// Location
+
+	public Location getLocation() {
+		return this.logoutLocaction;
+	}
 	public void setLogoutLocation(Location loc) {
 		String w = loc.getWorld().getName();
 		double x = loc.getX();
@@ -153,33 +165,32 @@ public class SMPPlayer {
 		double z = loc.getZ();
 		float yaw = loc.getYaw();
 		float pitch = loc.getPitch();
+		String locationString = w+"%"+x+"%"+y+"%"+z+"%"+yaw+"%"+pitch;
+		updateSQLPlayerValue("logoutLocation", locationString);
+
 		this.logoutLocaction = loc;
-		MySQL.update("UPDATE `"+MySQL.prefix+"players` SET `logoutLocation`='"+w+"%"+x+"%"+y+"%"+z+"%"+yaw+"%"+pitch+"' WHERE `uuid`='"+this.uuid+"'");
-	}
-	public Location getLocation() {
-		return this.logoutLocaction;
 	}
 	
 	// Playtime
 	public void countPlayTime() {
 		this.playTime += 1;
 	}
-	public void savePlayTime() {
-		MySQL.update("UPDATE `"+MySQL.prefix+"players` SET `playTime`='"+this.playTime+"' WHERE `uuid`='"+this.uuid+"'");
-	}
 	public Integer getPlayTime() {
 		return this.playTime;
 	}
+	public void savePlayTime() {
+		updateSQLPlayerValue("playTime", String.valueOf(this.playTime));
+	}
 	
 	// Ban
-	public void setBanReason(String reason) {
-		MySQL.update("UPDATE `"+MySQL.prefix+"players` SET `banReason`='"+reason+"' WHERE `uuid`='"+this.uuid+"'");
-		this.banReason = reason;
+	public Boolean isBanned() {
+		return !this.banReason.equals("none");
 	}
 	public String getBanReason() {
 		return this.banReason;
 	}
-	public Boolean isBanned() {
-		return this.banReason.equals("none") ? false : true;
+	public void setBanReason(String reason) {
+		updateSQLPlayerValue("banReason", reason);
+		this.banReason = reason;
 	}
 }

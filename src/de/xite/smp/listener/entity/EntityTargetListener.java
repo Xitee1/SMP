@@ -12,7 +12,7 @@ public class EntityTargetListener implements Listener {
 	public void onMob(EntityTargetLivingEntityEvent e) {
 		if(e.getTarget() instanceof Player) {
 			Player p = (Player) e.getTarget();
-			if(SMPPlayer.getPlayer(p).getTrustLevel() == 1) {
+			if(SMPPlayer.getPlayer(p.getUniqueId()).getTrustLevel() == 1) {
 				e.setCancelled(true);
 				return;
 			}

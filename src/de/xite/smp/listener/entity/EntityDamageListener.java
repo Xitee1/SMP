@@ -13,7 +13,7 @@ public class EntityDamageListener implements Listener {
 	public void onDamage(EntityDamageByEntityEvent e) {
 		if(e.getDamager() instanceof Player) {
 			Player p = (Player) e.getDamager();
-			if(SMPPlayer.getPlayer(p).getTrustLevel() == 1) {
+			if(SMPPlayer.getPlayer(p.getUniqueId()).getTrustLevel() == 1) {
 				e.setCancelled(true);
 				Messages.trustLevelNoAccess(p);
 			}

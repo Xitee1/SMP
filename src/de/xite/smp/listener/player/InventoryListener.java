@@ -14,7 +14,7 @@ public class InventoryListener implements Listener {
 	public void onInventoryInteract(InventoryClickEvent e) {
 		if(e.getWhoClicked() instanceof Player) {
 			Player p = (Player) e.getWhoClicked();
-			SMPPlayer smpp = SMPPlayer.getPlayer(p);
+			SMPPlayer smpp = SMPPlayer.getPlayer(p.getUniqueId());
 			
 			if(smpp.getTrustLevel() == 1) {
 				InventoryType invType = e.getClickedInventory().getType();

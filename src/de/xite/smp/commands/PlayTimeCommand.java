@@ -25,13 +25,13 @@ public class PlayTimeCommand implements CommandExecutor{
 				return true;
 			}
 			Player p = (Player) s;
-			SMPPlayer sp = SMPPlayer.getPlayer(p);
+			SMPPlayer sp = SMPPlayer.getPlayer(p.getUniqueId());
 			p.sendMessage(pr+"Deine Spielzeit: "+TimeUtils.convertPlayTimeFromSecondsToString(sp.getPlayTime()));
 		}else if(args.length == 1) {
 			Player t = Bukkit.getPlayer(args[0]);
 			UUID uuid = null;
 			if(t == null) {
-				uuid = SMPPlayer.getUUID(args[0]);
+				uuid = SMPPlayer.nameToUUID(args[0]);
 			}else
 				uuid = t.getUniqueId();
 			if(uuid == null) {

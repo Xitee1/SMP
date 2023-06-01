@@ -14,7 +14,7 @@ public class EntityMountListener implements Listener {
 	public void onRide(EntityMountEvent e) {
 		if(e.getEntity() instanceof Player) {
 			Player p = (Player) e.getEntity();
-			if(SMPPlayer.getPlayer(p).getTrustLevel() == 1) {
+			if(SMPPlayer.getPlayer(p.getUniqueId()).getTrustLevel() == 1) {
 				if(e.getMount().getType() == EntityType.LLAMA ||
 					e.getMount().getType() == EntityType.HORSE ||
 					e.getMount().getType() == EntityType.SKELETON_HORSE ||

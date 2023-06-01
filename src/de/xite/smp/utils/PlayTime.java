@@ -11,7 +11,7 @@ public class PlayTime {
 			@Override
 			public void run() {
 				for(Player p : Bukkit.getOnlinePlayers())
-					SMPPlayer.getPlayer(p).countPlayTime();
+					SMPPlayer.getPlayer(p.getUniqueId()).countPlayTime();
 			}
 		}, 20, 20);
 		
@@ -20,7 +20,7 @@ public class PlayTime {
 			@Override
 			public void run() {
 				for(Player p : Bukkit.getOnlinePlayers())
-					SMPPlayer.getPlayer(p).savePlayTime();
+					SMPPlayer.getPlayer(p.getUniqueId()).savePlayTime();
 			}
 		}, 20*60*30, 20*60*30);
 	}
