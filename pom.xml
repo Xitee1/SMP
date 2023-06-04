@@ -1,98 +1,112 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>SMP</groupId>
-  <artifactId>SMP</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  
-  <repositories>
-	<repository>
-   	 <id>papermc</id>
-   	 <url>https://papermc.io/repo/repository/maven-public/</url>
-	</repository>
-	<repository>
-    <id>playpro-repo</id>
-    <url>https://maven.playpro.com</url>
-	</repository>
-    <repository>
-        <id>Sparky</id>
-        <url>https://nexus.sparky.ac/repository/Sparky/</url>
-    </repository>
-  </repositories>
-  <dependencies>
-   	<dependency>
-   	  <groupId>io.papermc.paper</groupId>
-    	<artifactId>paper-api</artifactId>
-   		<version>1.18.2-R0.1-SNAPSHOT</version>
-   		<scope>provided</scope>
-	</dependency>
-	<dependency>
-   		<groupId>net.coreprotect</groupId>
-    	<artifactId>coreprotect</artifactId>
-  		<version>20.0</version>
-    	<scope>provided</scope>
-	</dependency>
-	<dependency>
-    	<groupId>com.zaxxer</groupId>
-   		<artifactId>HikariCP</artifactId>
-   		<version>3.4.5</version>
-	</dependency>
-	<dependency>
-	    <groupId>net.dv8tion</groupId>
-	    <artifactId>JDA</artifactId>
-	    <version>5.0.0-alpha.9</version>
-	</dependency>
-    <dependency>
-        <groupId>me.vagdedes.spartan</groupId>
-        <artifactId>SpartanAPI</artifactId>
-        <version>5.0</version>
-        <scope>provided</scope>
-    </dependency>
-  </dependencies>
-  <build>
-    <sourceDirectory>src</sourceDirectory>
-    <resources>
-      <resource>
-        <directory>src</directory>
-        <excludes>
-          <exclude>**/*.java</exclude>
-        </excludes>
-      </resource>
-    </resources>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>SMP</groupId>
+    <artifactId>SMP</artifactId>
+    <version>1.1</version>
 
-    <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
-        <configuration>
-          <release>11</release>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
-        <configuration>
-          <!-- put your configurations here -->
-        </configuration>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-	<plugin>
-	  <groupId>org.apache.maven.plugins</groupId>
-	  <artifactId>maven-jar-plugin</artifactId>
-	  <version>2.3.1</version>
-	  <configuration>
-	    <outputDirectory>D:\Daten\PluginTestServer\plugins</outputDirectory>
-	  </configuration>
-	</plugin>
-    </plugins>
+    <repositories>
+        <!-- PaperMC -->
+        <repository>
+            <id>papermc</id>
+            <url>https://papermc.io/repo/repository/maven-public/</url>
+        </repository>
+        <!-- Plugin: CoreProtect -->
+        <repository>
+            <id>playpro-repo</id>
+            <url>https://maven.playpro.com</url>
+        </repository>
+        <!-- Plugin: Spartan AntiCheat -->
+        <!-- Currently offline.. https://docs.google.com/document/d/e/2PACX-1vTzeCDiD2goCFO3oWIs3ANwmOvOqI2TLYVkjHO4Z-2q3yTDZPyYZ9bFX4OCwlBamWA_SOP7Ib5uARc8/pub -->
+        <!--
+        <repository>
+            <id>Sparky</id>
+            <url>https://nexus.sparky.ac/repository/Sparky/</url>
+        </repository>
+        -->
+    </repositories>
+    <dependencies>
+        <!-- PaperMC -->
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.19.4-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Plugin: CoreProtect -->
+        <dependency>
+            <groupId>net.coreprotect</groupId>
+            <artifactId>coreprotect</artifactId>
+            <version>21.3</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Plugin: Spartan AntiCheat -->
+        <!--
+        <dependency>
+            <groupId>me.vagdedes</groupId>
+            <artifactId>SpartanAPI</artifactId>
+            <version>9.1</version>
+            <scope>provided</scope>
+        </dependency>
+        -->
+        <!-- Database utility -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>3.4.5</version>
+        </dependency>
+        <!-- Discord bot API (JDA) -->
+        <dependency>
+            <groupId>net.dv8tion</groupId>
+            <artifactId>JDA</artifactId>
+            <version>5.0.0-beta.9</version>
+        </dependency>
+
+    </dependencies>
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <release>11</release>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <configuration>
+                    <!-- put your configurations here -->
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
+                <configuration>
+                    <outputDirectory>D:\Daten\PluginTestServer\plugins</outputDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
 
 
-  </build>
+    </build>
 </project>

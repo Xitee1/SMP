@@ -28,7 +28,6 @@ import de.xite.smp.listener.entity.EntityDamageListener;
 import de.xite.smp.listener.entity.EntityMountListener;
 import de.xite.smp.listener.entity.EntitySpawnListener;
 import de.xite.smp.listener.entity.EntityTargetListener;
-import de.xite.smp.listener.external.SpartanAnticheat;
 import de.xite.smp.listener.player.BlockBreakPlaceListener;
 import de.xite.smp.listener.player.FoodChangeListener;
 import de.xite.smp.listener.player.InteractListener;
@@ -67,7 +66,7 @@ public class Main extends JavaPlugin{
 		MySQL.connect();
 		
 		// Start up the bot
-		// Bukkit.getScheduler().runTaskAsynchronously(pl, SMPcord::connectDiscord);
+		Bukkit.getScheduler().runTaskAsynchronously(pl, SMPcord::connectDiscord);
 		
 		String vstring = Bukkit.getBukkitVersion();
 		MCVersion = vstring.substring(0, vstring.lastIndexOf("-R")).replace("_", ".");
@@ -107,7 +106,7 @@ public class Main extends JavaPlugin{
 		pm.registerEvents(new InventoryListener(), this);
 		pm.registerEvents(new JoinQuitListener(), this);
 		pm.registerEvents(new MoveListener(), this);
-		pm.registerEvents(new SpartanAnticheat(), this);
+		//pm.registerEvents(new SpartanAnticheat(), this);
 		pm.registerEvents(new DiscordChatListener(), this);
 		
 		// Cache the config lists

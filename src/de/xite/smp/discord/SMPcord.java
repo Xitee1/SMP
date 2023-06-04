@@ -6,6 +6,8 @@ import de.xite.smp.main.Main;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.Compression;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
@@ -19,7 +21,8 @@ public class SMPcord {
 	String roleID_trustLevel_5 = "xxx";
 	String roleID_trustLevel_6 = "xxx";
 	
-	private static String token = pl.getConfig().getString("discord.token");
+	private static final String token = pl.getConfig().getString("discord.token");
+	public static final String textChannel = Main.pl.getConfig().getString("discord.chatChannel");
 	
 	private static JDA jda;
 	
@@ -31,19 +34,31 @@ public class SMPcord {
 		builder.setBulkDeleteSplittingEnabled(false);
 		builder.setCompression(Compression.NONE);
 		builder.setAutoReconnect(true);
+		builder.enableIntents(GatewayIntent.MESSAGE_CONTENT); // Allow bot to read text messages
 		
 		builder.setActivity(Activity.watching("dem Chat zu"));
 		
 		builder.addEventListeners(new DiscordChatListener());
-		
-		try {
-			jda = builder.build();
-			pl.getLogger().info("Discord bot is online!");
-		} catch (LoginException e) {
-			e.printStackTrace();
-			pl.getLogger().info("Could not start Discord bot!");
-		}
 
+		jda = builder.build();
+		try {
+			jda.awaitReady();
+		} catch (InterruptedException e) {
+			pl.getLogger().info("Discord could not connect:");
+			e.printStackTrace();
+			return;
+		}
+		pl.getLogger().info("Discord bot is online!");
+
+	}
+
+	public static void sendChatMessage(String message) {
+		JDA jda = SMPcord.getJDA();
+		if(jda != null && textChannel != null) {
+			for(TextChannel tc : jda.getTextChannelsByName(textChannel, false))
+				if(tc.canTalk())
+					tc.sendMessage(message).queue();
+		}
 	}
 	
 	public static JDA getJDA() {

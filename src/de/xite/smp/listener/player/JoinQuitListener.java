@@ -2,6 +2,7 @@ package de.xite.smp.listener.player;
 
 import de.xite.smp.commands.BlockInfoCommand;
 import de.xite.smp.commands.ChunkInfoCommand;
+import de.xite.smp.discord.SMPcord;
 import de.xite.smp.main.Main;
 import de.xite.smp.sql.MySQL;
 import de.xite.smp.utils.SMPPlayer;
@@ -50,6 +51,7 @@ public class JoinQuitListener implements Listener {
 
 		// Join message
 		e.joinMessage(Component.text(ChatColor.YELLOW + p.getName() + " hat das Spiel betreten."));
+		SMPcord.sendChatMessage("_**"+p.getName()+" hat das Spiel betreten.**_");
 
 		// Check if SMPPlayer does exist. If not, create the SMPPlayer and send welcome message.
 		if(smpp == null) {
@@ -85,6 +87,7 @@ public class JoinQuitListener implements Listener {
 
 		// Quit message
 		e.quitMessage(Component.text(ChatColor.YELLOW + p.getName() + " hat das Spiel verlassen."));
+		SMPcord.sendChatMessage("_**"+p.getName()+" hat das Spiel verlassen.**_");
 
 		// Remove player's cache
 		BlockInfoCommand.fastLookupThrottle.remove(p);
