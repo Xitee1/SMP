@@ -60,7 +60,7 @@ public class TimeUtils {
 		if(component) {
 			Date logDate = new Date(logTime * 1000L);
 			String formattedTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(logDate);
-			return formattedTimestamp + "|" + message.toString();
+			return formattedTimestamp + "|" + message;
 		}
 		
 		return message.toString();

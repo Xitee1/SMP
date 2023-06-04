@@ -21,7 +21,7 @@ import de.xite.smp.utils.Actionbar;
 import de.xite.smp.utils.ChunkManager;
 
 public class ChunkInfoCommand implements CommandExecutor {
-	private static String pr = ChatColor.GRAY+"["+ChatColor.RED+"ChunkInfo"+ChatColor.GRAY+"] ";
+	private static final String pr = ChatColor.GRAY+"["+ChatColor.RED+"ChunkInfo"+ChatColor.GRAY+"] ";
 	public static HashMap<Player, Chunk> lastChunk = new HashMap<>();
 	public static HashMap<Player, Boolean> isLoading = new HashMap<>();
 	private static Statement statement = null;

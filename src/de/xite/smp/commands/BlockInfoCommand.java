@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import net.md_5.bungee.api.ChatColor;
 
 public class BlockInfoCommand implements CommandExecutor{
-	public static String pr = ChatColor.GRAY+"["+ChatColor.RED+"BlockInfo"+ChatColor.GRAY+"] ";
+	public static final String pr = ChatColor.GRAY+"["+ChatColor.RED+"BlockInfo"+ChatColor.GRAY+"] ";
 	public static ArrayList<Player> players = new ArrayList<>();
 	public static HashMap<Player, Long> fastLookupThrottle = new HashMap<>();
 	

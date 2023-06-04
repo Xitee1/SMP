@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>SMP</groupId>
   <artifactId>SMP</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.1</version>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <resources>
@@ -53,28 +53,18 @@
       <id>playpro-repo</id>
       <url>https://maven.playpro.com</url>
     </repository>
-    <repository>
-      <id>Sparky</id>
-      <url>https://nexus.sparky.ac/repository/Sparky/</url>
-    </repository>
   </repositories>
   <dependencies>
     <dependency>
       <groupId>io.papermc.paper</groupId>
       <artifactId>paper-api</artifactId>
-      <version>1.18.2-R0.1-SNAPSHOT</version>
+      <version>1.19.4-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>net.coreprotect</groupId>
       <artifactId>coreprotect</artifactId>
-      <version>20.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>me.vagdedes.spartan</groupId>
-      <artifactId>SpartanAPI</artifactId>
-      <version>5.0</version>
+      <version>21.3</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
