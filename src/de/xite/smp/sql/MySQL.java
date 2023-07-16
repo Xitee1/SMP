@@ -158,7 +158,7 @@ public class MySQL {
 		isUpdating = true;
 
 		if(!waitingUpdates.isEmpty() || ChunkManager.getAllChunks().size() != 0) {
-			pl.getLogger().info("Executing all waiting updates..");
+			pl.getLogger().info("Executing all waiting updates ("+waitingUpdates.size()+")..");
 			try {
 				Statement st = getConnection().createStatement();
 
