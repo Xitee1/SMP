@@ -1,8 +1,6 @@
 package de.xite.smp.utils;
 
-import java.awt.*;
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -11,8 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import de.xite.smp.main.Main;
-import de.xite.smp.sql.MySQL;
-import net.md_5.bungee.api.ChatColor;
+import de.xite.smp.database.Database;
 
 public class SMPPlayer {
 	private static HashMap<UUID, SMPPlayer> players = new HashMap<>();
@@ -36,9 +33,8 @@ public class SMPPlayer {
 	 */
 	
 	private SMPPlayer(UUID uuid) {
-		try {
-			Statement st = MySQL.getConnection().createStatement();
-			ResultSet rs = st.executeQuery("SELECT * FROM `"+MySQL.prefix+"players` WHERE `uuid`='"+uuid+"'");
+		try (Statement st = Database.getConnection().createStatement()) {
+			ResultSet rs = st.executeQuery("SELECT * FROM `"+ Database.prefix+"players` WHERE `uuid`='"+uuid+"'");
 			if(rs.next()) {
 				this.uuid = uuid;
 				this.name = rs.getString("name");
@@ -52,12 +48,12 @@ public class SMPPlayer {
 						Float.parseFloat(location[4]), Float.parseFloat(location[5]));
 			}
 			rs.close();
-			st.close();
 		} catch (SQLException e1) {
 			Main.pl.getLogger().severe("Could not load player with UUID "+uuid+"!");
 			e1.printStackTrace();
 		}
 	}
+
 	public static SMPPlayer getPlayer(UUID uuid) {
 		if(!players.containsKey(uuid)) {
 			SMPPlayer smpPlayer = new SMPPlayer(uuid);
@@ -78,13 +74,14 @@ public class SMPPlayer {
 		Player p = Bukkit.getPlayer(uuid);
 		if(p != null) {
 			try {
-				Statement st = MySQL.getConnection().createStatement();
-				st.executeUpdate("INSERT INTO `"+MySQL.prefix+"players` (`uuid`, `name`, `trustlevel`, `firstJoined`, `lastJoined`, `logoutLocation`, `playTime`, `banReason`) VALUES"
+				Statement st = Database.getConnection().createStatement();
+				st.executeUpdate("INSERT INTO `"+ Database.prefix+"players` (`uuid`, `name`, `trustlevel`, `firstJoined`, `lastJoined`, `logoutLocation`, `playTime`, `banReason`) VALUES"
 						+ "('"+uuid+"', '"+p.getName()+"', '1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'world%0%0%0%0%0', '0', 'none')");
 				st.close();
 				return getPlayer(uuid);
 			}catch (SQLException e) {
 				Main.pl.getLogger().severe("Could not create new player with UUID "+uuid+"!");
+				e.printStackTrace();
 			}
 		}else {
 			Main.pl.getLogger().severe("Player must be online in order to create SMPPlayer");
@@ -93,7 +90,7 @@ public class SMPPlayer {
 	}
 	
 	public static UUID nameToUUID(String name) {
-		String uuid = MySQL.getString("players", "uuid", "`name`='"+name+"'");
+		String uuid = Database.getString("players", "uuid", "`name`='"+name+"'");
 		if(uuid == null)
 			return null;
 		return UUID.fromString(uuid);
@@ -109,25 +106,28 @@ public class SMPPlayer {
 	}
 
 	private void updateSQLPlayerValue(String key, String value) {
-		MySQL.update("UPDATE `"+MySQL.prefix+"players` SET `"+key+"`='"+value+"' WHERE `uuid`='"+this.uuid+"'");
+		Database.update("UPDATE `"+ Database.prefix+"players` SET `"+key+"`='"+value+"' WHERE `uuid`='"+this.uuid+"'");
 	}
 
 	// ---------------- //
 	// SMPPlayer object //
 	// ---------------- //
+	// Player name
 	public String getName() {
 		return this.name;
 	}
 
 	public void setName(String name) {
-		updateSQLPlayerValue("name", name);
 		this.name = name;
+		updateSQLPlayerValue("name", name);
 	}
+
 
 	// Trust Level
 	public Integer getTrustLevel() {
 		return this.trustlevel;
 	}
+
 	public void setTrustLevel(int level) {
 		updateSQLPlayerValue("trustlevel", String.valueOf(level));
 		this.trustlevel = level;
@@ -135,29 +135,31 @@ public class SMPPlayer {
 
 	
 	// First joined
-	/*
 	public Timestamp getFirstJoined() {
 		return this.firstJoined;
 	}
+	/*
 	public void setFirstJoined(Timestamp date) {
 		updateSQLPlayerValue("firstjoined", null);
 	}
 	*/
+
+
 	// Last joined
-	/*
-	public void setLastJoined() {
-		MySQL.update("UPDATE `"+MySQL.prefix+"players` SET `lastJoined`=CURRENT_TIMESTAMP WHERE `uuid`='"+this.uuid+"'");
+	public void saveLastJoined() {
+		Database.update("UPDATE `"+Database.prefix+"players` SET `lastJoined`=CURRENT_TIMESTAMP WHERE `uuid`='"+this.uuid+"'");
 	}
+
 	public Timestamp getLastJoined() {
 		return this.lastJoined;
 	}
-	 */
-	
-	// Location
 
+
+	// Location
 	public Location getLocation() {
 		return this.logoutLocaction;
 	}
+
 	public void setLogoutLocation(Location loc) {
 		String w = loc.getWorld().getName();
 		double x = loc.getX();
@@ -170,14 +172,17 @@ public class SMPPlayer {
 
 		this.logoutLocaction = loc;
 	}
+
 	
 	// Playtime
 	public void countPlayTime() {
 		this.playTime += 1;
 	}
+
 	public Integer getPlayTime() {
 		return this.playTime;
 	}
+
 	public void savePlayTime() {
 		updateSQLPlayerValue("playTime", String.valueOf(this.playTime));
 	}
@@ -186,9 +191,11 @@ public class SMPPlayer {
 	public Boolean isBanned() {
 		return !this.banReason.equals("none");
 	}
+
 	public String getBanReason() {
 		return this.banReason;
 	}
+
 	public void setBanReason(String reason) {
 		updateSQLPlayerValue("banReason", reason);
 		this.banReason = reason;

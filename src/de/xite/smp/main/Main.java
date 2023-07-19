@@ -35,7 +35,7 @@ import de.xite.smp.listener.player.InventoryListener;
 import de.xite.smp.listener.player.JoinQuitListener;
 import de.xite.smp.listener.player.MoveListener;
 import de.xite.smp.listener.world.ChunkListener;
-import de.xite.smp.sql.MySQL;
+import de.xite.smp.database.Database;
 import de.xite.smp.utils.Actionbar;
 import de.xite.smp.utils.PlayTime;
 import net.coreprotect.CoreProtect;
@@ -50,28 +50,42 @@ public class Main extends JavaPlugin{
 	public static List<Material> dangerousBlocks = new ArrayList<>(); // Disallowed blocks for TrustLevel online needed
 	
 	public static String hexColorBegin = "#", hexColorEnd = ""; // hex color Syntax
+
+	public static Boolean debug = false;
+
 	@Override
 	public void onEnable() {
 		pl = this;
+
+		// Set the current detected MC version
+		String vstring = Bukkit.getBukkitVersion();
+		MCVersion = vstring.substring(0, vstring.lastIndexOf("-R")).replace("_", ".");
 
 		// Load config and services
 		pl.reloadConfig();
 		pl.getConfig().options().copyDefaults(true);
 		pl.saveDefaultConfig();
-		Actionbar.start();
-		PlayTime.startPlaytimeCounter();
-		ChunkInfoCommand.chunkInfoUpdater();
-		
+
+		debug = pl.getConfig().getBoolean("debug");
+
+		for(String s : pl.getConfig().getStringList("interactAllowedTrustLevel1"))
+			interactAllowedTrustLevel1.add(Material.getMaterial(s));
+
+		for(String s : pl.getConfig().getStringList("dangerousBlocks"))
+			dangerousBlocks.add(Material.getMaterial(s));
+
 		// Connect to MySQl database
-		MySQL.connect();
+		Database.connect();
 		
-		// Start up the bot
-		Bukkit.getScheduler().runTaskAsynchronously(pl, SMPcord::connectDiscord);
-		
-		String vstring = Bukkit.getBukkitVersion();
-		MCVersion = vstring.substring(0, vstring.lastIndexOf("-R")).replace("_", ".");
-		
-		// --- Commands --- //
+		// Start up the Discord bot (if enabled)
+		if(getConfig().getBoolean("discord.enabled"))
+			Bukkit.getScheduler().runTaskAsynchronously(pl, SMPcord::connectDiscord);
+
+		// Start other needed services/schedulers
+		Actionbar.startActionbarService();
+		PlayTime.startPlaytimeCounter();
+
+		// --- Register Commands --- //
 		
 		// TrustLevel
 		getCommand("trustlevel").setExecutor(new TrustLevelCommand());
@@ -92,7 +106,7 @@ public class Main extends JavaPlugin{
 		getCommand("hilfe").setExecutor(new HelpCommand());
 		getCommand("help").setExecutor(new HelpCommand());
 		
-		// --- Events --- //
+		// --- Register Events --- //
 		PluginManager pm = Bukkit.getPluginManager();
 		
 		pm.registerEvents(new BlockBreakPlaceListener(), this);
@@ -108,18 +122,12 @@ public class Main extends JavaPlugin{
 		pm.registerEvents(new MoveListener(), this);
 		//pm.registerEvents(new SpartanAnticheat(), this);
 		pm.registerEvents(new DiscordChatListener(), this);
-		
-		// Cache the config lists
-		for(String s : pl.getConfig().getStringList("interactAllowedTrustLevel1"))
-			interactAllowedTrustLevel1.add(Material.getMaterial(s));
-		
-		for(String s : pl.getConfig().getStringList("dangerousBlocks"))
-			dangerousBlocks.add(Material.getMaterial(s));
-
 	}
+
 	@Override
 	public void onDisable() {
-		MySQL.executeAllWaitingUpdates();
+		Database.executeAllBatches();
+		Database.disconnect();
 
 		// Prevent the hoster from deleting the logs
 		pl.getLogger().info("Moving logs..");
@@ -137,6 +145,7 @@ public class Main extends JavaPlugin{
 		}
 		pl.getLogger().info("Logs moved!");
 	}
+
 	public static CoreProtectAPI getCoreProtect() {
 		Plugin plugin = pl.getServer().getPluginManager().getPlugin("CoreProtect");
 		// Check that CoreProtect is loaded

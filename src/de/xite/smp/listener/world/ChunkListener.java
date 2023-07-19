@@ -1,28 +1,26 @@
 package de.xite.smp.listener.world;
 
+import de.xite.smp.database.statement.ChunkStatement;
 import de.xite.smp.main.Main;
-import de.xite.smp.sql.MySQL;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import de.xite.smp.utils.ChunkManager;
 import org.bukkit.Chunk;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
 
 public class ChunkListener implements Listener {
-	static Main pl = Main.pl;
-	
 	@EventHandler
 	public void onChunkCreate(ChunkLoadEvent e) {
 		if(e.isNewChunk()) {
 			Chunk chunk = e.getChunk();
 
 			SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-			MySQL.waitingUpdates.add("INSERT INTO `" + MySQL.prefix + "chunks` (`world`, `loc_x`, `loc_z`, `version_created`, `date_created`, `version_modified`, `date_modified`) VALUES" + 
-					"('"+chunk.getWorld().getName()+"', '"+chunk.getX()+"', '"+chunk.getZ()+"', '"+Main.MCVersion+"', '" + sdf.format(new Date()) + "', 'none', 'none')");
+			String dateCreated = sdf.format(new Date());
+			String versionCreated = Main.MCVersion;
+			ChunkStatement.insert(chunk, dateCreated, versionCreated);
 		} 
 	}
 	

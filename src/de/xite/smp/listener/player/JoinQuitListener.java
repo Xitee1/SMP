@@ -4,10 +4,12 @@ import de.xite.smp.commands.BlockInfoCommand;
 import de.xite.smp.commands.ChunkInfoCommand;
 import de.xite.smp.discord.SMPcord;
 import de.xite.smp.main.Main;
-import de.xite.smp.sql.MySQL;
+import de.xite.smp.database.Database;
 import de.xite.smp.utils.SMPPlayer;
 import net.kyori.adventure.text.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -26,7 +28,7 @@ public class JoinQuitListener implements Listener {
 	@EventHandler
 	public void onLogin(PlayerLoginEvent e) {
 		Player p = e.getPlayer();
-		if(!MySQL.isConnected()) {
+		if(!Database.isConnected()) {
 			e.disallow(Result.KICK_OTHER, Component.text(ChatColor.RED+"Der Server konnte keine Verbindung zur Datenbank herstellen! Bitte kontaktiere einen Admin (Discord) und versuche es später erneut."));
 			return;
 		}
@@ -51,7 +53,7 @@ public class JoinQuitListener implements Listener {
 
 		// Join message
 		e.joinMessage(Component.text(ChatColor.YELLOW + p.getName() + " hat das Spiel betreten."));
-		SMPcord.sendChatMessage("_**"+p.getName()+" hat das Spiel betreten.**_");
+		SMPcord.sendChatMessage("**"+p.getName()+" hat das Spiel betreten.**");
 
 		// Check if SMPPlayer does exist. If not, create the SMPPlayer and send welcome message.
 		if(smpp == null) {
@@ -61,8 +63,8 @@ public class JoinQuitListener implements Listener {
 					Bukkit.getServer().broadcast(Component.text(ChatColor.GREEN+"Herzlich Willkommen, "+ChatColor.YELLOW+p.getName()+ChatColor.GREEN+"!"));
 				}, 20);
 			}else {
-				p.kick(Component.text("Leider gab es ein Datenbank-Problem. Benachrichtige bitte einen Admin im Discord und versuche es später erneut."));
-				Main.pl.getLogger().severe("Player joined but does not exist in database!");
+				p.kick(Component.text("Leider gab es ein Problem mit der Datenbank. Kontaktiere bitte einen Admin im Discord und versuche es später erneut."));
+				Main.pl.getLogger().severe("Player "+p.getName()+" joined but could not be created in database!");
 				return;
 			}
 		}
@@ -75,8 +77,16 @@ public class JoinQuitListener implements Listener {
 		if(trustLevel == 1)
 			p.setCollidable(false);
 
-		PermissionAttachment perms = p.addAttachment(Main.pl);
-		perms.setPermission("trustlevel.level."+trustLevel, true);
+		PermissionAttachment pa = p.addAttachment(Main.pl);
+
+		pa.setPermission("trustlevel.level."+trustLevel, true);
+
+		List<String> perms = Main.pl.getConfig().getStringList("trustlevel."+trustLevel+".perms");
+		for(String s : perms) {
+			pa.setPermission(s, true);
+			if(Main.debug)
+				Main.pl.getLogger().info("Player "+p.getName()+" got the permission: "+s);
+		}
 	}
 
 	@EventHandler
@@ -87,26 +97,24 @@ public class JoinQuitListener implements Listener {
 
 		// Quit message
 		e.quitMessage(Component.text(ChatColor.YELLOW + p.getName() + " hat das Spiel verlassen."));
-		SMPcord.sendChatMessage("_**"+p.getName()+" hat das Spiel verlassen.**_");
+		SMPcord.sendChatMessage("**"+p.getName()+" hat das Spiel verlassen.**");
 
 		// Remove player's cache
 		BlockInfoCommand.fastLookupThrottle.remove(p);
-		ChunkInfoCommand.lastChunk.remove(p);
-		ChunkInfoCommand.isLoading.remove(p);
+		ChunkInfoCommand.chunkInfoList.remove(p);
 
 		// Save player data
 		Bukkit.getScheduler().runTaskAsynchronously(Main.pl, () -> {
-			SMPPlayer sp = SMPPlayer.getPlayer(uuid);
-			if(sp != null) {
-				// sp.setLastJoined();
-				sp.savePlayTime();
-				sp.setLogoutLocation(loc);
+			SMPPlayer smpp = SMPPlayer.getPlayer(uuid);
+			if(smpp != null) {
+				smpp.saveLastJoined();
+				smpp.savePlayTime();
+				smpp.setLogoutLocation(loc);
 
 				SMPPlayer.unloadSMPPlayer(uuid);
 			}else {
 				Main.pl.getLogger().severe("SMPPlayer "+p.getName()+" is null and could not be saved!");
 			}
-
 		});
 	}
 }

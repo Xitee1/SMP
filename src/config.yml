@@ -1,22 +1,33 @@
 ##################################################
-### SMP - Das SMP Plugin von der XiteSMP       ###
+### SMP - Das SMP Plugin vom Xite SMP Server   ###
 ###                                            ###
-### Source Code: https://github.com/Xitee1/SMP ###
+### Source-Code: https://github.com/Xitee1/SMP ###
 ##################################################
-mysql:
-  use: false
-  host: '127.0.0.1'
-  port: 3306
-  user: 'admin'
-  password: 'DeinPasswort'
-  database: 'minecraft'
+sql:
+  type: sqlite # Available: sqlite, mysql
   table-prefix: 'smp_'
-  useSSL: true
+  sqlite:
+    path: SMP/database.db
+  mysql:
+    host: '127.0.0.1'
+    port: 3306
+    user: 'admin'
+    password: 'password'
+    database: 'smp'
+    useSSL: true
 
 discord:
+  enabled: false
   token: 'xxx'
   chatChannel: 'chat'
-  
+
+trustlevel:
+  6:
+    perms:
+      - 'spartan.bypass'
+      - 'spartan.punishment'
+      - 'spartan.admin'
+
 ##############
 ### Blöcke ###
 ##############
@@ -50,3 +61,6 @@ interactAllowedTrustLevel1:
 dangerousBlocks:
   - LAVA_BUCKET
   - FLINT_AND_STEEL
+
+
+debug: false

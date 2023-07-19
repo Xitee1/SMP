@@ -1,76 +1,87 @@
 package de.xite.smp.commands;
 
-import net.md_5.bungee.api.ChatColor;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
+import de.xite.smp.utils.ChunkInfo;
+import net.kyori.adventure.text.Component;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import de.xite.smp.main.Main;
-import de.xite.smp.sql.MySQL;
-import de.xite.smp.utils.Actionbar;
-import de.xite.smp.utils.ChunkManager;
-
 public class ChunkInfoCommand implements CommandExecutor {
-	private static final String pr = ChatColor.GRAY+"["+ChatColor.RED+"ChunkInfo"+ChatColor.GRAY+"] ";
-	public static HashMap<Player, Chunk> lastChunk = new HashMap<>();
-	public static HashMap<Player, Boolean> isLoading = new HashMap<>();
-	private static Statement statement = null;
-	private static Connection c = null;
+	private static final String prefix = ChatColor.GRAY+"["+ ChatColor.RED+"ChunkInfo"+ChatColor.GRAY+"] ";
+	//public static HashMap<Player, Chunk> lastChunk = new HashMap<>();
+	//public static HashMap<Player, Boolean> isLoading = new HashMap<>();
+	//private static Statement statement = null;
+	//private static Connection c = null;
+	public static HashMap<Player, ChunkInfo> chunkInfoList = new HashMap<>();
 	
 	public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
-		if(s instanceof Player) {
-			Player p = (Player) s;
-			if(lastChunk.containsKey(p)) {
-				lastChunk.remove(p);
-				isLoading.remove(p);
-				p.sendMessage(pr+ChatColor.RED+"Chunk-Info deaktiviert.");
-				Actionbar.removeActionBar(p);
-				if(lastChunk.isEmpty()) {
-					try {
-						if(statement != null) {
-							statement.close();
-							statement = null;
-						}
-						if(c != null) {
-							c.close();
-							c = null;
-						}
-						Main.pl.getLogger().info("ChunkInfo Statement geschlossen");
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
-				}
-			}else {
-				if(statement == null) {
-					try {
-						c = MySQL.getConnection();
-						statement = c.createStatement();
-						Main.pl.getLogger().info("ChunkInfo Statement erstellt");
-					} catch (SQLException e) {
-						e.printStackTrace();
-						return true;
-					}
-				}
-				
-				lastChunk.put(p, null);
-				isLoading.put(p, false);
-				sendChunkInfoToPlayer(p);
-				p.sendMessage(pr+ChatColor.GREEN+"Chunk-Info aktiviert.");
-			}
+		if(!(s instanceof Player)) {
+			s.sendMessage(Component.text("Dieser Befehl kann nur von Spielern ausgeführt werden."));
+			return true;
 		}
+		Player p = (Player) s;
+
+		if(chunkInfoList.containsKey(p)) {
+			ChunkInfo chunkInfo = chunkInfoList.get(p);
+			chunkInfo.stopSendingChunkInfoToPlayer();
+			chunkInfoList.remove(p);
+
+			p.sendMessage(prefix+ChatColor.RED+"Chunk-Info wird nicht mehr angezeigt.");
+		}else {
+			ChunkInfo chunkInfo = new ChunkInfo(p);
+			chunkInfo.startSendingChunkInfoToPlayer();
+			chunkInfoList.put(p, chunkInfo);
+
+			p.sendMessage(prefix+ChatColor.GREEN+"Chunk-Info wird nun angezeigt.");
+		}
+
+		/*
+		if(lastChunk.containsKey(p)) {
+			lastChunk.remove(p);
+			isLoading.remove(p);
+			p.sendMessage(pr+ChatColor.RED+"Chunk-Info deaktiviert.");
+			Actionbar.removeActionbar(p);
+			if(lastChunk.isEmpty()) {
+				try {
+					if(statement != null) {
+						statement.close();
+						statement = null;
+					}
+					if(c != null) {
+						c.close();
+						c = null;
+					}
+					Main.pl.getLogger().info("ChunkInfo Statement geschlossen");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}else {
+			if(statement == null) {
+				try {
+					c = MySQL.getConnection();
+					statement = c.createStatement();
+					Main.pl.getLogger().info("ChunkInfo Statement erstellt");
+				} catch (SQLException e) {
+					e.printStackTrace();
+					return true;
+				}
+			}
+
+			lastChunk.put(p, null);
+			isLoading.put(p, false);
+			sendChunkInfoToPlayer(p);
+			p.sendMessage(pr+ChatColor.GREEN+"Chunk-Info aktiviert.");
+		}
+
+		 */
 		return true;
 	}
-	
+	/*
 	private static void sendChunkInfoToPlayer(Player p) {
 		if(!lastChunk.containsKey(p))
 			return;
@@ -121,7 +132,7 @@ public class ChunkInfoCommand implements CommandExecutor {
 									"Bearbeitet: "+ChatColor.AQUA+date_modified+ChatColor.GRAY+" ("+ChatColor.AQUA+version_modified+ChatColor.GRAY+")", 20*60);
 						}
 					}else {
-						Actionbar.sendActionBar(p, ChatColor.GREEN+"ChunkInfo "+ChatColor.DARK_GRAY+"| "+ChatColor.RED+"Keine informationen für diesen Chunk.", 20*60);
+						Actionbar.sendActionBar(p, ChatColor.GREEN+"ChunkInfo "+ChatColor.DARK_GRAY+"| "+ChatColor.RED+"Keine Informationen für diesen Chunk.", 20*60);
 					}
 				} catch (SQLException e) {
 					Main.pl.getLogger().severe("Konnte keine Daten von der MySQL Datenbank holen!");
@@ -143,4 +154,6 @@ public class ChunkInfoCommand implements CommandExecutor {
 			}
 		}, 20*5, 20);
 	}
+
+	 */
 }

@@ -11,19 +11,16 @@ public class TimeUtils {
 		int seconds = playtime % 60;
 		
 		String s = "";
-
 		
-
-		
-		if(hours == 0 || hours == 1) {
+		if(hours == 1) {
 			s += hours + " Stunde, ";
 		}else
 			s += hours + " Stunden, ";
-		if(minutes == 0 || minutes == 1) {
+		if(minutes == 1) {
 			s += minutes + " Minute, ";
 		}else
 			s += minutes + " Minuten, ";
-		if(seconds == 0 || seconds == 1) {
+		if(seconds == 1) {
 			s += seconds + " Sekunde";
 		}else
 			s += seconds + " Sekunden";
