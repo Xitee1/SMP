@@ -30,7 +30,7 @@ public class BlockBreakPlaceListener implements Listener {
 			SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 			String dateModified = sdf.format(new Date());
 			String versionModified = Main.MCVersion;
-			ChunkStatement.update(p.getLocation().getChunk(), dateModified, versionModified);
+			ChunkStatement.update(e.getBlock().getLocation().getChunk(), dateModified, versionModified);
 		}
 	}
 	
@@ -47,7 +47,7 @@ public class BlockBreakPlaceListener implements Listener {
 			SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 			String dateModified = sdf.format(new Date());
 			String versionModified = Main.MCVersion;
-			ChunkStatement.update(p.getLocation().getChunk(), dateModified, versionModified);
+			ChunkStatement.update(e.getBlock().getLocation().getChunk(), dateModified, versionModified);
 		}
 	}
 	
