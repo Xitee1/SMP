@@ -50,8 +50,6 @@ public class InteractListener implements Listener {
 		Block b = e.getBlock();
 		Material m = b.getType();
 
-		Main.pl.getLogger().info("Item placed: "+m.getItemTranslationKey());
-
 		if(!isPlayerAllowedToInteract(p, m)) {
 			e.setCancelled(true);
 			return;
