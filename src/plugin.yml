@@ -7,11 +7,15 @@ softdepend: [Spartan]
 api-version: 1.20
 commands:
   trustlevel:
+  tl:
   chunkinfo:
   ci:
   blockinfo:
   bi:
   spielzeit:
   playtime:
+  sz:
+  pt:
   hilfe:
   help:
+  setlocation:

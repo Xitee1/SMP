@@ -29,37 +29,41 @@ public class TimeUtils {
 	}
 	
 	
-	// Credits: CoreProtect - https://github.com/PlayPro/CoreProtect/blob/master/src/main/java/net/coreprotect/utility/Util.java#L199
-	public static String getTimeSince(long logTime, long currentTime, boolean component) {
+	// Credits: CoreProtect - https://github.com/PlayPro/CoreProtect/blob/master/src/main/java/net/coreprotect/utility/Util.java#L233C1-L268C6
+	public static String getTimeSince(long resultTime, long currentTime, boolean component) {
 		StringBuilder message = new StringBuilder();
-		double timeSince = currentTime - (logTime + 0.00);
-		
+		double timeSince = currentTime - (resultTime + 0.00);
+		if (timeSince < 0.00) {
+			timeSince = 0.00;
+		}
+
 		// minutes
 		timeSince = timeSince / 60;
-		if(timeSince < 60.0) {
+		if (timeSince < 60.0) {
 			message.append(new DecimalFormat("0.00").format(timeSince) + "/m");
 		}
-		
+
 		// hours
-		if(message.length() == 0) {
+		if (message.length() == 0) {
 			timeSince = timeSince / 60;
-            if (timeSince < 24.0) {
-            	message.append(new DecimalFormat("0.00").format(timeSince) + "/h");
-            }
+			if (timeSince < 24.0) {
+				message.append(new DecimalFormat("0.00").format(timeSince) + "/h");
+			}
 		}
 
 		// days
-		if(message.length() == 0) {
+		if (message.length() == 0) {
 			timeSince = timeSince / 24;
 			message.append(new DecimalFormat("0.00").format(timeSince) + "/d");
 		}
-		
-		if(component) {
-			Date logDate = new Date(logTime * 1000L);
+
+		if (component) {
+			Date logDate = new Date(resultTime * 1000L);
 			String formattedTimestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(logDate);
+
 			return formattedTimestamp + "|" + message;
 		}
-		
+
 		return message.toString();
 	}
 }

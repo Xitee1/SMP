@@ -3,6 +3,7 @@ package de.xite.smp.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.xite.smp.main.Messages;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -18,69 +19,76 @@ import net.md_5.bungee.api.ChatColor;
 public class TrustLevelCommand implements CommandExecutor, TabCompleter{
 	static Main pl = Main.pl;
 	
-	public static String pr = ChatColor.GRAY+"["+ChatColor.RED+"TrustLevel"+ChatColor.GRAY+"] ";
+	public static final String pr = ChatColor.GRAY+"["+ChatColor.RED+"TrustLevel"+ChatColor.GRAY+"] ";
+	private static final String modifyPerm = "smp.trustlevel.modify";
 
 	@Override
-	public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
+	public boolean onCommand(CommandSender s, Command cmd, String arg2, String[] args) {
 		if(args.length == 0) {
+			// Show TL to player
+
 			if(s instanceof Player) {
 				Player p = (Player) s;
-				SMPPlayer sp = SMPPlayer.getPlayer(p.getUniqueId());
-				if(!checkSMPPlayer(sp, s))
+
+				SMPPlayer smpp = SMPPlayer.getPlayer(p.getUniqueId());
+				if(!checkSMPPlayer(smpp, s))
 					return true;
 				
-				p.sendMessage(pr+"Dein aktuelles TrustLevel ist "+ChatColor.YELLOW+sp.getTrustLevel()+ChatColor.GRAY+"/"+ChatColor.YELLOW+SMPPlayer.maxTrustLevel+ChatColor.GRAY+".");
-				if(sp.getTrustLevel() < SMPPlayer.maxTrustLevel) {
-					p.sendMessage(pr+"Um auf Stufe "+(sp.getTrustLevel() + 1)+" zu kommen, betrete bitte unseren Discord (https://discord.gg/PZ2fHC3Wwr).");
-					p.sendMessage(pr+"Bitte beachte, dass du am Anfang nur wenige Rechte bekommst, um Griefing zu vermeiden.");
+				p.sendMessage(pr+"Dein aktuelles TrustLevel ist "+showTrustLevel(smpp.getTrustLevel())+".");
+				if(smpp.getTrustLevel() < SMPPlayer.maxTrustLevel) {
+					p.sendMessage(pr+"Um auf Stufe "+(smpp.getTrustLevel() + 1)+" zu kommen, frage es bitte auf unserem "+ChatColor.AQUA+"Discord ( https://discord.gg/PZ2fHC3Wwr )"+ChatColor.GRAY+" an.");
+					p.sendMessage(pr+"Bitte beachte, dass du am Anfang nur wenige Rechte bekommst, um griefing zu vermeiden.");
 				}
-			}
+			}else
+				s.sendMessage("Dieser Befehl kann nur von einem Spieler ausgeführt werden!");
 		}else if(args.length == 2 && args[0].equalsIgnoreCase("promote")) {
-			if(s instanceof Player) {
-				Player p = (Player) s;
-				if(!p.hasPermission("smp.trustlevel.modify")) {
-					p.sendMessage(pr+ChatColor.RED+"Du hast nicht die ausreichende Rechte, um dies zu tun!");
-					return true;
-				}
-			}
-			SMPPlayer sp = SMPPlayer.getPlayer(UUIDFetcher.getUUID(args[1]));
-			if(!checkSMPPlayer(sp, s))
+			// Promote player's TL (+1)
+
+			if(!s.hasPermission(modifyPerm)) {
+				s.sendMessage(Messages.generalNoPermission(pr));
 				return true;
-			if(sp.getTrustLevel() == SMPPlayer.maxTrustLevel) {
+			}
+
+			SMPPlayer smpp = SMPPlayer.getPlayer(UUIDFetcher.getUUID(args[1]));
+			if(!checkSMPPlayer(smpp, s))
+				return true;
+
+			if(smpp.getTrustLevel() == SMPPlayer.maxTrustLevel) {
 				s.sendMessage(pr+ChatColor.RED+"Der Spieler "+ChatColor.YELLOW+args[1]+ChatColor.RED+" ist bereits auf der höchsten Stufe.");
 			}else {
-				sp.setTrustLevel(sp.getTrustLevel()+1);
-				s.sendMessage(pr+"Der Spieler "+ChatColor.YELLOW+args[1]+ChatColor.GRAY+" hat nun das TrustLevel "+ChatColor.YELLOW+sp.getTrustLevel()+ChatColor.GRAY+"/"+ChatColor.YELLOW+SMPPlayer.maxTrustLevel+ChatColor.GRAY+".");
+				smpp.setTrustLevel(smpp.getTrustLevel()+1);
+				s.sendMessage(pr+"Der Spieler "+ChatColor.YELLOW+args[1]+ChatColor.GRAY+" hat nun das TrustLevel "+showTrustLevel(smpp.getTrustLevel())+".");
 				Player t = Bukkit.getPlayer(args[1]);
 				if(t != null)
-					t.sendMessage(pr+ChatColor.GREEN+"Herzlichen Glückwunsch! "+ChatColor.GRAY+"Dein TrustLevel wurde von "+ChatColor.YELLOW+(sp.getTrustLevel()-1)+ChatColor.GRAY+" auf "+ChatColor.YELLOW+sp.getTrustLevel()+ChatColor.GRAY+" erhöht!");
+					t.sendMessage(pr+ChatColor.GREEN+"Herzlichen Glückwunsch! "+ChatColor.GRAY+"Dein TrustLevel wurde von erhöht! Du hast nun das TrustLevel "+showTrustLevel(smpp.getTrustLevel()));
 			}
 		}else if(args.length == 2 && args[0].equalsIgnoreCase("demote")) {
-			if(s instanceof Player) {
-				Player p = (Player) s;
-				if(!p.hasPermission("smp.trustlevel.modify")) {
-					p.sendMessage(pr+ChatColor.RED+"Du hast nicht die ausreichende Rechte, um dies zu tun!");
-					return true;
-				}
-			}
-			SMPPlayer sp = SMPPlayer.getPlayer(UUIDFetcher.getUUID(args[1]));
-			if(!checkSMPPlayer(sp, s))
+			// Demote player's TL (-1)
+
+			if(!s.hasPermission(modifyPerm)) {
+				s.sendMessage(Messages.generalNoPermission(pr));
 				return true;
-			if(sp.getTrustLevel() == 1) {
+			}
+
+			SMPPlayer smpp = SMPPlayer.getPlayer(UUIDFetcher.getUUID(args[1]));
+			if(!checkSMPPlayer(smpp, s))
+				return true;
+
+			if(smpp.getTrustLevel() == 1) {
 				s.sendMessage(pr+ChatColor.RED+"Der Spieler "+ChatColor.YELLOW+args[1]+ChatColor.RED+" ist bereits auf der niedrigsten Stufe.");
 			}else {
-				sp.setTrustLevel(sp.getTrustLevel()-1);
-				s.sendMessage(pr+"Der Spieler "+ChatColor.YELLOW+args[1]+ChatColor.GRAY+" hat nun das TrustLevel "+ChatColor.YELLOW+sp.getTrustLevel()+ChatColor.GRAY+"/"+ChatColor.YELLOW+SMPPlayer.maxTrustLevel+ChatColor.GRAY+".");
+				smpp.setTrustLevel(smpp.getTrustLevel() - 1);
+				s.sendMessage(pr+"Der Spieler "+ChatColor.YELLOW+args[1]+ChatColor.GRAY+" hat nun das TrustLevel "+showTrustLevel(smpp.getTrustLevel())+".");
 			}
 		}else if(args.length == 3 && args[0].equalsIgnoreCase("set")) {
-			if(s instanceof Player) {
-				Player p = (Player) s;
-				if(!p.hasPermission("smp.trustlevel.modify")) {
-					p.sendMessage(pr+ChatColor.RED+"Du hast nicht die ausreichende Rechte, um dies zu tun!");
-					return true;
-				}
+			// Set player's TL
+
+			if(!s.hasPermission(modifyPerm)) {
+				s.sendMessage(Messages.generalNoPermission(pr));
+				return true;
 			}
-			int i = 0;
+
+			int i;
 			try {
 				i = Integer.parseInt(args[2]);
 			}catch (Exception e) {
@@ -88,33 +96,34 @@ public class TrustLevelCommand implements CommandExecutor, TabCompleter{
 				return true;
 			}
 			
-			SMPPlayer sp = SMPPlayer.getPlayer(UUIDFetcher.getUUID(args[1]));
-			if(!checkSMPPlayer(sp, s))
+			SMPPlayer smpp = SMPPlayer.getPlayer(UUIDFetcher.getUUID(args[1]));
+			if(!checkSMPPlayer(smpp, s))
 				return true;
+
 			if(i < 1 || i > SMPPlayer.maxTrustLevel) {
 				s.sendMessage(pr+ChatColor.RED+"Ungültige Eingabe. Gültige TrustLevel: "+ChatColor.YELLOW+"1"+ChatColor.GRAY+"-"+ChatColor.YELLOW+SMPPlayer.maxTrustLevel);
 			}else {
-				sp.setTrustLevel(i);
-				s.sendMessage(pr+"Der Spieler "+ChatColor.YELLOW+args[1]+ChatColor.GRAY+" hat nun das TrustLevel "+ChatColor.YELLOW+sp.getTrustLevel()+ChatColor.GRAY+"/"+ChatColor.YELLOW+SMPPlayer.maxTrustLevel+ChatColor.GRAY+".");
+				smpp.setTrustLevel(i);
+				s.sendMessage(pr+"Der Spieler "+ChatColor.YELLOW+args[1]+ChatColor.GRAY+" hat nun das TrustLevel "+showTrustLevel(smpp.getTrustLevel())+".");
 			}
 		}else {
-			if(s instanceof Player) {
-				Player p = (Player) s;
-				if(!p.hasPermission("smp.trustlevel.modify")) {
-					s.sendMessage(pr+ChatColor.RED+"Syntax: "+ChatColor.AQUA+"/trustlevel");
-					return true;
-				}
-			}
-			s.sendMessage(pr+ChatColor.RED+"Syntax: "+ChatColor.AQUA+"/trustlevel <promote/demote/set> <Spieler> [Level]");
+			// No more command args, show correct syntax.
+
+			if(!s.hasPermission(modifyPerm)) {
+				s.sendMessage(Messages.commandSyntax(cmd, pr, ""));
+			}else
+				s.sendMessage(Messages.commandSyntax(cmd, pr, "<promote/demote/set> <Spieler> [Level]"));
 		}
 		return true;
 	}
+
+
 	@Override
 	public List<String> onTabComplete(CommandSender s, Command cmd, String alias, String[] args) {
 		List<String> list = new ArrayList<String>();
 		if(s instanceof Player) {
 			Player p = (Player) s;
-			if(!p.hasPermission("smp.trustlevel.modify"))
+			if(!p.hasPermission(modifyPerm))
 				return list;
 		}
 		if(args.length == 1) {
@@ -136,14 +145,14 @@ public class TrustLevelCommand implements CommandExecutor, TabCompleter{
 	
 	private boolean checkSMPPlayer(SMPPlayer smpp, CommandSender s) {
 		if(smpp == null) {
-			s.sendMessage(pr+ChatColor.RED+"Der angefordete Spieler konnte nicht geladen werden!");
+			s.sendMessage(Messages.playerNeverOnline(pr, null));
 			return false;
 		}
 		return true;
 	}
 
 
-	private static void showTrustLevel(CommandSender s) {
-
+	private static String showTrustLevel(int current) {
+		return ""+ChatColor.YELLOW+current+ChatColor.GRAY+"/"+ChatColor.YELLOW+SMPPlayer.maxTrustLevel+ChatColor.GRAY;
 	}
 }

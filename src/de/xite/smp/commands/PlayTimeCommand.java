@@ -2,6 +2,7 @@ package de.xite.smp.commands;
 
 import java.util.UUID;
 
+import de.xite.smp.main.Messages;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,36 +15,36 @@ import de.xite.smp.utils.TimeUtils;
 import net.md_5.bungee.api.ChatColor;
 
 public class PlayTimeCommand implements CommandExecutor{
-	String pr = ChatColor.GRAY+"["+ChatColor.RED+"Spielzeit"+ChatColor.GRAY+"] ";
+	String prefix = ChatColor.GRAY+"["+ChatColor.RED+"Spielzeit"+ChatColor.GRAY+"] ";
 	
 	@Override
 	public boolean onCommand(@NotNull CommandSender s, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 		if(args.length == 0) {
 			if(!(s instanceof Player)) {
-				s.sendMessage(pr+ChatColor.RED+"Dieser Befehl kann nur ein Spieler ausführen!");
-				s.sendMessage(pr+ChatColor.RED+"Syntax: "+ChatColor.AQUA+"/spielzeit [Spieler]");
+				s.sendMessage(prefix +ChatColor.RED+"Diesen Befehl kann nur ein Spieler ausführen!");
+				s.sendMessage(Messages.commandSyntax(command, prefix, "[Spieler]"));
 				return true;
 			}
 			Player p = (Player) s;
 			SMPPlayer sp = SMPPlayer.getPlayer(p.getUniqueId());
-			p.sendMessage(pr+"Deine Spielzeit: "+TimeUtils.convertPlayTimeFromSecondsToString(sp.getPlayTime()));
+			p.sendMessage(prefix +"Deine Spielzeit beträgt: "+ChatColor.AQUA + TimeUtils.convertPlayTimeFromSecondsToString(sp.getPlayTime()));
 		}else if(args.length == 1) {
 			Player t = Bukkit.getPlayer(args[0]);
-			UUID uuid = null;
+			UUID uuid;
 			if(t == null) {
 				uuid = SMPPlayer.nameToUUID(args[0]);
 			}else
 				uuid = t.getUniqueId();
 			if(uuid == null) {
-				s.sendMessage(pr+ChatColor.RED+"Der Spieler "+ChatColor.YELLOW+args[0]+ChatColor.RED+" war noch nie online.");
+				s.sendMessage(Messages.playerNeverOnline(prefix, args[0]));
 				return true;
 			}
-			s.sendMessage(pr+ChatColor.YELLOW+args[0]+ChatColor.GRAY+"'s Spielzeit: "+TimeUtils.convertPlayTimeFromSecondsToString(SMPPlayer.getPlayer(uuid).getPlayTime()));
+			s.sendMessage(prefix +ChatColor.YELLOW+args[0]+ChatColor.GRAY+"'s Spielzeit beträgt: "+ChatColor.AQUA + TimeUtils.convertPlayTimeFromSecondsToString(SMPPlayer.getPlayer(uuid).getPlayTime()));
 		}else
 			if(s instanceof Player) {
-				s.sendMessage(pr+ChatColor.RED+"Syntax: "+ChatColor.AQUA+"/spielzeit <Spieler>");
+				s.sendMessage(Messages.commandSyntax(command, prefix, "<Spieler>"));
 			}else
-				s.sendMessage(pr+ChatColor.RED+"Syntax: "+ChatColor.AQUA+"/spielzeit [Spieler]");
+		s.sendMessage(Messages.commandSyntax(command, prefix, "[Spieler]"));
 		return true;
 	}
 }

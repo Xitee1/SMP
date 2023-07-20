@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import de.xite.smp.commands.BlockInfoCommand;
@@ -20,6 +21,7 @@ import de.xite.smp.utils.TimeUtils;
 import net.coreprotect.CoreProtectAPI;
 import net.coreprotect.CoreProtectAPI.ParseResult;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.inventory.ItemStack;
 
 public class InteractListener implements Listener {
 	@EventHandler
@@ -41,6 +43,20 @@ public class InteractListener implements Listener {
 			}
 		}
 	}
+
+	@EventHandler
+	public void onBlockPlace(BlockPlaceEvent e) {
+		Player p = e.getPlayer();
+		Block b = e.getBlock();
+		Material m = b.getType();
+
+		Main.pl.getLogger().info("Item placed: "+m.getItemTranslationKey());
+
+		if(!isPlayerAllowedToInteract(p, m)) {
+			e.setCancelled(true);
+			return;
+		}
+	}
 	
 	private Boolean isPlayerAllowedToInteract(Player p, Material m) {
 		/*
@@ -58,18 +74,21 @@ public class InteractListener implements Listener {
 			Messages.trustLevelNoAccess(p);
 			return false;
 		}
+
 		if(smpp.getTrustLevel() == 2) {
 			if(!SMPPlayer.isLVLmaxOnline()) {
 				Messages.trustLevelOnlineNeeded(p);
 				return false;
-			}else {
-				if(Main.dangerousBlocks.contains(m)) {
-					Messages.trustLevelDangerousBlock(p);
-					sendDangerousInteract(p, m);
-					return false;
-				}
+			}
+
+			//Main.pl.getLogger().warning("Material interact: "+m.getItemTranslationKey());
+			if(Main.dangerousBlocks.contains(m)) {
+				Messages.trustLevelDangerousBlock(p);
+				sendDangerousInteract(p, m);
+				return false;
 			}
 		}
+
 		if(smpp.getTrustLevel() == 3) {
 			if(Main.dangerousBlocks.contains(m)) {
 				Messages.trustLevelDangerousBlock(p);
@@ -77,6 +96,7 @@ public class InteractListener implements Listener {
 				return false;
 			}
 		}
+
 		if(smpp.getTrustLevel() == 4) {
 			if(!SMPPlayer.isLVLmaxOnline()) {
 				if(Main.dangerousBlocks.contains(m)) {
@@ -85,6 +105,7 @@ public class InteractListener implements Listener {
 				}
 			}
 		}
+
 		return true;
 	}
 	
@@ -94,60 +115,63 @@ public class InteractListener implements Listener {
 	}
 	
 	private static void sendBlockInfo(Player p, PlayerInteractEvent e) {
-		Bukkit.getScheduler().runTaskAsynchronously(Main.pl, new Runnable() {
-			@Override
-			public void run() {
-				if(BlockInfoCommand.fastLookupThrottle.containsKey(p)) {
-					if((System.currentTimeMillis() - BlockInfoCommand.fastLookupThrottle.get(p)) < 500) {
-						p.sendMessage(BlockInfoCommand.pr+ChatColor.RED+"Bitte etwas langsamer!");
-						return;
-					}
+		Bukkit.getScheduler().runTaskAsynchronously(Main.pl, () -> {
+			if(BlockInfoCommand.fastLookupThrottle.containsKey(p)) {
+				if((System.currentTimeMillis() - BlockInfoCommand.fastLookupThrottle.get(p)) < 500) {
+					p.sendMessage(BlockInfoCommand.pr+ChatColor.RED+"Bitte etwas langsamer!");
+					return;
 				}
-				if(e.getAction() == Action.LEFT_CLICK_BLOCK) {
-					BlockInfoCommand.fastLookupThrottle.put(p, System.currentTimeMillis());
-					CoreProtectAPI api = Main.getCoreProtect();
-					if(api != null) {
-						Block b = e.getClickedBlock();
-						List<String[]> lookup = api.blockLookup(b, -1);
-						if(lookup != null) {
-							if(lookup.size() == 0) {
-								p.sendMessage(BlockInfoCommand.pr+ChatColor.RED+"Keine Daten für den Block "+ChatColor.AQUA+b.getType().name()+ChatColor.RED+" gefunden.");
-							}else {
-								p.sendMessage(BlockInfoCommand.pr+ChatColor.GOLD+"-------------------------------");
-								p.sendMessage(BlockInfoCommand.pr+ChatColor.GOLD+"Info für den Block "+ChatColor.AQUA+"x"+b.getX()+"/y"+b.getY()+"/"+b.getZ()+ChatColor.GRAY+":");
-								int i = 1;
-								for(String[] result : lookup) {
-									if(i <= 10) {
-										ParseResult parseResult = api.parseResult(result);
-										if(!parseResult.isRolledBack()) {
-											int actionID = parseResult.getActionId();
-											Material m = parseResult.getType();
-											String player = parseResult.getPlayer();
-											long resultTime = parseResult.getTimestamp();
-											long time = System.currentTimeMillis() / 1000L;
-											
-											if(actionID == 0) {
-												// Block removed
-												p.sendMessage(Main.translateHexColor(BlockInfoCommand.pr+ChatColor.GRAY+"vor "+TimeUtils.getTimeSince(resultTime, time, false) +" "+ChatColor.DARK_GRAY+"- "
-														+ChatColor.DARK_AQUA+player+ChatColor.GRAY+" hat #00B6B6"+m.name()+"#CB2100 entfernt."));
-											}
-											if(actionID == 1) {
-												// Block placed
-												p.sendMessage(Main.translateHexColor(BlockInfoCommand.pr+ChatColor.GRAY+"vor "+TimeUtils.getTimeSince(resultTime, time, false) +" "+ChatColor.DARK_GRAY+"- "
-														+ChatColor.DARK_AQUA+player+ChatColor.GRAY+" hat #00B6B6"+m.name()+"#00AA16 platziert."));
-											}
+			}
+			if(e.getAction() == Action.LEFT_CLICK_BLOCK) {
+				BlockInfoCommand.fastLookupThrottle.put(p, System.currentTimeMillis());
+				CoreProtectAPI api = Main.getCoreProtect();
+
+				if(api != null) {
+					Block b = e.getClickedBlock();
+					List<String[]> lookup = api.blockLookup(b, -1);
+
+					if(lookup != null) {
+						String block = ChatColor.AQUA+"x"+b.getX()+"/y"+b.getY()+"/z"+b.getZ()+ChatColor.GRAY;
+
+						if(lookup.size() == 0) {
+							p.sendMessage(BlockInfoCommand.pr+ChatColor.RED+"Keine Daten für den Block "+block+" gefunden.");
+						}else {
+							int i = 1;
+
+							p.sendMessage(BlockInfoCommand.pr+ChatColor.GOLD+"-------------------------------");
+							p.sendMessage(BlockInfoCommand.pr+ChatColor.GOLD+"Info für den Block "+block+":");
+
+							for(String[] result : lookup) {
+								if(i <= 10) {
+									ParseResult parseResult = api.parseResult(result);
+									if(!parseResult.isRolledBack()) {
+										int actionID = parseResult.getActionId();
+										Material m = parseResult.getType();
+										String player = parseResult.getPlayer();
+										long resultTime = parseResult.getTimestamp();
+										long time = System.currentTimeMillis() / 1000L;
+
+										if(actionID == 0) {
+											// Block removed
+											p.sendMessage(Main.translateHexColor(BlockInfoCommand.pr+ChatColor.GRAY+"vor "+TimeUtils.getTimeSince(resultTime, time, false) +" "+ChatColor.DARK_GRAY+"- "
+													+ChatColor.DARK_AQUA+player+ChatColor.GRAY+" hat #00B6B6"+m.name()+"#CB2100 entfernt."));
 										}
-										i++;
+										if(actionID == 1) {
+											// Block placed
+											p.sendMessage(Main.translateHexColor(BlockInfoCommand.pr+ChatColor.GRAY+"vor "+TimeUtils.getTimeSince(resultTime, time, false) +" "+ChatColor.DARK_GRAY+"- "
+													+ChatColor.DARK_AQUA+player+ChatColor.GRAY+" hat #00B6B6"+m.name()+"#00AA16 platziert."));
+										}
 									}
+									i++;
 								}
-								p.sendMessage(BlockInfoCommand.pr+ChatColor.GOLD+"-------------------------------");
 							}
+							p.sendMessage(BlockInfoCommand.pr+ChatColor.GOLD+"-------------------------------");
 						}
 					}
 				}
-				if(e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-					BlockInfoCommand.fastLookupThrottle.put(p, System.currentTimeMillis());
-				}
+			}
+			if(e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+				//BlockInfoCommand.fastLookupThrottle.put(p, System.currentTimeMillis());
 			}
 		});
 	}

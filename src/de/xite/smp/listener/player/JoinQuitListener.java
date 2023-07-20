@@ -5,6 +5,7 @@ import de.xite.smp.commands.ChunkInfoCommand;
 import de.xite.smp.discord.SMPcord;
 import de.xite.smp.main.Main;
 import de.xite.smp.database.Database;
+import de.xite.smp.utils.Locations;
 import de.xite.smp.utils.SMPPlayer;
 import net.kyori.adventure.text.Component;
 
@@ -60,6 +61,10 @@ public class JoinQuitListener implements Listener {
 			smpp = SMPPlayer.create(uuid);
 			if(smpp != null) {
 				Bukkit.getScheduler().runTaskLater(Main.pl, () -> {
+					Location spawn = Locations.getLocation("spawn");
+					if(spawn != null)
+						p.teleport(spawn);
+
 					Bukkit.getServer().broadcast(Component.text(ChatColor.GREEN+"Herzlich Willkommen, "+ChatColor.YELLOW+p.getName()+ChatColor.GREEN+"!"));
 				}, 20);
 			}else {
@@ -101,6 +106,7 @@ public class JoinQuitListener implements Listener {
 
 		// Remove player's cache
 		BlockInfoCommand.fastLookupThrottle.remove(p);
+		BlockInfoCommand.players.remove(p);
 		ChunkInfoCommand.chunkInfoList.remove(p);
 
 		// Save player data

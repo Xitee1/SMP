@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import de.xite.smp.commands.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.plugin.Plugin;
@@ -17,11 +18,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.google.common.io.Files;
 
-import de.xite.smp.commands.BlockInfoCommand;
-import de.xite.smp.commands.ChunkInfoCommand;
-import de.xite.smp.commands.HelpCommand;
-import de.xite.smp.commands.PlayTimeCommand;
-import de.xite.smp.commands.TrustLevelCommand;
 import de.xite.smp.discord.DiscordChatListener;
 import de.xite.smp.discord.SMPcord;
 import de.xite.smp.listener.entity.EntityDamageListener;
@@ -62,9 +58,7 @@ public class Main extends JavaPlugin{
 		MCVersion = vstring.substring(0, vstring.lastIndexOf("-R")).replace("_", ".");
 
 		// Load config and services
-		pl.reloadConfig();
-		pl.getConfig().options().copyDefaults(true);
-		pl.saveDefaultConfig();
+		Config.loadAllConfigs();
 
 		debug = pl.getConfig().getBoolean("debug");
 
@@ -90,6 +84,9 @@ public class Main extends JavaPlugin{
 		// TrustLevel
 		getCommand("trustlevel").setExecutor(new TrustLevelCommand());
 		getCommand("trustlevel").setTabCompleter(new TrustLevelCommand());
+		getCommand("tl").setExecutor(new TrustLevelCommand());
+		getCommand("tl").setTabCompleter(new TrustLevelCommand());
+
 		// ChunkInfo
 		getCommand("chunkinfo").setExecutor(new ChunkInfoCommand());
 		getCommand("ci").setExecutor(new ChunkInfoCommand());
@@ -101,10 +98,15 @@ public class Main extends JavaPlugin{
 		// Spielzeit
 		getCommand("spielzeit").setExecutor(new PlayTimeCommand());
 		getCommand("playtime").setExecutor(new PlayTimeCommand());
+		getCommand("sz").setExecutor(new PlayTimeCommand());
+		getCommand("pt").setExecutor(new PlayTimeCommand());
 		
 		// Hilfe
 		getCommand("hilfe").setExecutor(new HelpCommand());
 		getCommand("help").setExecutor(new HelpCommand());
+
+		// Location manager
+		getCommand("setlocation").setExecutor(new SetLocationCommand());
 		
 		// --- Register Events --- //
 		PluginManager pm = Bukkit.getPluginManager();
