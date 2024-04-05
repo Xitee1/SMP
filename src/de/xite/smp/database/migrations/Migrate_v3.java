@@ -25,7 +25,7 @@ public class Migrate_v3 {
             st.executeUpdate("INSERT INTO `" + Database.prefix + "players_new` " +
                     "SELECT `uuid`, `name`, `trustlevel`, `firstJoined`, `lastJoined`, `logoutLocation`, `playTime`, `banReason` " +
                     "FROM `" + Database.prefix + "players`;");
-            st.executeUpdate("UPDATE `" + Database.prefix + "players_new` SET banReason=NULL WHERE banReason=`none`;");
+            st.executeUpdate("UPDATE `" + Database.prefix + "players_new` SET `banReason`=NULL WHERE `banReason`='none';");
 
             // Step 3: Drop the old table
             st.executeUpdate("DROP TABLE `" + Database.prefix + "players`;");
