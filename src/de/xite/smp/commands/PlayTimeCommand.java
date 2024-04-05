@@ -28,7 +28,8 @@ public class PlayTimeCommand implements CommandExecutor{
 			Player p = (Player) s;
 			SMPPlayer smpp = SMPPlayer.getPlayer(p.getUniqueId());
 			SMPPlayer.updatePlayTime(smpp, p);
-			p.sendMessage(prefix +"Deine Spielzeit beträgt: "+ChatColor.AQUA + TimeUtils.convertPlayTimeFromSecondsToString(smpp.getPlayTime()));
+			p.sendMessage(prefix +"Deine Spielzeit beträgt: "
+					+ChatColor.AQUA + TimeUtils.convertPlayTimeFromSecondsToString(smpp.getPlayTime()));
 		}else if(args.length == 1) {
 			String playerName = args[0];
 			long playTime = getPlaytime(playerName);
@@ -36,7 +37,8 @@ public class PlayTimeCommand implements CommandExecutor{
 				s.sendMessage(Messages.playerNeverOnline(prefix, args[0]));
 				return true;
 			}
-			s.sendMessage(prefix +ChatColor.YELLOW+args[0]+ChatColor.GRAY+"'s Spielzeit beträgt: "+ChatColor.AQUA + playTime);
+			s.sendMessage(prefix +ChatColor.YELLOW+args[0]+ChatColor.GRAY+"'s Spielzeit beträgt: "
+					+ChatColor.AQUA + TimeUtils.convertPlayTimeFromSecondsToString(playTime));
 		}else
 			if(s instanceof Player) {
 				s.sendMessage(Messages.commandSyntax(command, prefix, "<Spieler>"));
