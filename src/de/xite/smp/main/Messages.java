@@ -6,7 +6,7 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 import de.xite.smp.utils.Actionbar;
-import de.xite.smp.utils.SMPPlayer;
+import de.xite.smp.entities.SMPPlayer;
 import net.md_5.bungee.api.ChatColor;
 
 public class Messages {

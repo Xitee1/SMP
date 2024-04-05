@@ -1,6 +1,6 @@
 package de.xite.smp.commands;
 
-import de.xite.smp.utils.SMPPlayer;
+import de.xite.smp.entities.SMPPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.command.Command;

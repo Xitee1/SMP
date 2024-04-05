@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 
-import de.xite.smp.utils.SMPPlayer;
+import de.xite.smp.entities.SMPPlayer;
 import org.bukkit.Bukkit;
 
 import com.zaxxer.hikari.HikariConfig;

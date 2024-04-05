@@ -12,7 +12,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 import de.xite.smp.main.Main;
 import de.xite.smp.main.Messages;
-import de.xite.smp.utils.SMPPlayer;
+import de.xite.smp.entities.SMPPlayer;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

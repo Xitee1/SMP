@@ -6,7 +6,7 @@ import de.xite.smp.discord.SMPcord;
 import de.xite.smp.main.Main;
 import de.xite.smp.database.Database;
 import de.xite.smp.utils.Locations;
-import de.xite.smp.utils.SMPPlayer;
+import de.xite.smp.entities.SMPPlayer;
 import net.kyori.adventure.text.Component;
 
 import java.sql.Timestamp;

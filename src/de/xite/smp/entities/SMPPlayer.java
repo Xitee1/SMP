@@ -1,4 +1,4 @@
-package de.xite.smp.utils;
+package de.xite.smp.entities;
 
 import java.sql.*;
 import java.util.HashMap;

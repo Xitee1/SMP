@@ -7,7 +7,7 @@ import org.bukkit.event.Listener;
 import org.spigotmc.event.entity.EntityMountEvent;
 
 import de.xite.smp.main.Messages;
-import de.xite.smp.utils.SMPPlayer;
+import de.xite.smp.entities.SMPPlayer;
 
 public class EntityMountListener implements Listener {
 	@EventHandler

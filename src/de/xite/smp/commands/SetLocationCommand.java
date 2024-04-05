@@ -2,7 +2,7 @@ package de.xite.smp.commands;
 
 import de.xite.smp.main.Messages;
 import de.xite.smp.utils.Locations;
-import de.xite.smp.utils.SMPPlayer;
+import de.xite.smp.entities.SMPPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.md_5.bungee.api.ChatColor;

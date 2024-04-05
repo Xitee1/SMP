@@ -12,7 +12,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import de.xite.smp.main.Main;
-import de.xite.smp.utils.SMPPlayer;
+import de.xite.smp.entities.SMPPlayer;
 import net.md_5.bungee.api.ChatColor;
 
 public class TrustLevelCommand implements CommandExecutor, TabCompleter{

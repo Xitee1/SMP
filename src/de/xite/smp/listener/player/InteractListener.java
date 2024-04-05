@@ -16,12 +16,11 @@ import de.xite.smp.commands.BlockInfoCommand;
 import de.xite.smp.commands.TrustLevelCommand;
 import de.xite.smp.main.Main;
 import de.xite.smp.main.Messages;
-import de.xite.smp.utils.SMPPlayer;
+import de.xite.smp.entities.SMPPlayer;
 import de.xite.smp.utils.TimeUtils;
 import net.coreprotect.CoreProtectAPI;
 import net.coreprotect.CoreProtectAPI.ParseResult;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.inventory.ItemStack;
 
 public class InteractListener implements Listener {
 	@EventHandler

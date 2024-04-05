@@ -1,5 +1,6 @@
 package de.xite.smp.utils;
 
+import de.xite.smp.entities.SMPPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
