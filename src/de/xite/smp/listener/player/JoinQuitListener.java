@@ -111,6 +111,7 @@ public class JoinQuitListener implements Listener {
 
 		// Save player data
 		smpp.setLogoutLocation(loc);
+		SMPPlayer.updatePlayTime(smpp, p);
 		Bukkit.getScheduler().runTaskAsynchronously(Main.pl, () -> {
 			smpp.persist();
 			SMPPlayer.unloadSMPPlayer(uuid);

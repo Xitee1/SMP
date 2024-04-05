@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
 
 import de.xite.smp.main.Main;
@@ -78,6 +79,9 @@ public class SMPPlayer {
         return false;
     }
 
+    public static void updatePlayTime(SMPPlayer smpp, Player p) {
+        smpp.setPlayTime((long) (p.getStatistic(Statistic.PLAY_ONE_MINUTE) / 20));
+    }
 
     // ---------------- //
     // SMPPlayer object //
@@ -140,8 +144,8 @@ public class SMPPlayer {
         return this.playTime;
     }
 
-    public void setPlayTime(long millis) {
-        this.playTime = millis;
+    public void setPlayTime(long seconds) {
+        this.playTime = seconds;
     }
 
     public void countPlayTime() {

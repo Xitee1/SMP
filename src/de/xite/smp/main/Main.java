@@ -33,7 +33,6 @@ import de.xite.smp.listener.player.MoveListener;
 import de.xite.smp.listener.world.ChunkListener;
 import de.xite.smp.database.Database;
 import de.xite.smp.utils.Actionbar;
-import de.xite.smp.utils.PlayTime;
 import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
 import net.md_5.bungee.api.ChatColor;
@@ -77,7 +76,6 @@ public class Main extends JavaPlugin{
 
 		// Start other needed services/schedulers
 		Actionbar.startActionbarService();
-		PlayTime.startPlaytimeCounter();
 
 		// --- Register Commands --- //
 		

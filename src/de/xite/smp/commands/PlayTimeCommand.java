@@ -26,25 +26,39 @@ public class PlayTimeCommand implements CommandExecutor{
 				return true;
 			}
 			Player p = (Player) s;
-			SMPPlayer sp = SMPPlayer.getPlayer(p.getUniqueId());
-			p.sendMessage(prefix +"Deine Spielzeit beträgt: "+ChatColor.AQUA + TimeUtils.convertPlayTimeFromSecondsToString(sp.getPlayTime()));
+			SMPPlayer smpp = SMPPlayer.getPlayer(p.getUniqueId());
+			SMPPlayer.updatePlayTime(smpp, p);
+			p.sendMessage(prefix +"Deine Spielzeit beträgt: "+ChatColor.AQUA + TimeUtils.convertPlayTimeFromSecondsToString(smpp.getPlayTime()));
 		}else if(args.length == 1) {
-			Player t = Bukkit.getPlayer(args[0]);
-			UUID uuid;
-			if(t == null) {
-				uuid = SMPPlayer.nameToUUID(args[0]);
-			}else
-				uuid = t.getUniqueId();
-			if(uuid == null) {
+			String playerName = args[0];
+			long playTime = getPlaytime(playerName);
+			if(playTime == -1) {
 				s.sendMessage(Messages.playerNeverOnline(prefix, args[0]));
 				return true;
 			}
-			s.sendMessage(prefix +ChatColor.YELLOW+args[0]+ChatColor.GRAY+"'s Spielzeit beträgt: "+ChatColor.AQUA + TimeUtils.convertPlayTimeFromSecondsToString(SMPPlayer.getPlayer(uuid).getPlayTime()));
+			s.sendMessage(prefix +ChatColor.YELLOW+args[0]+ChatColor.GRAY+"'s Spielzeit beträgt: "+ChatColor.AQUA + playTime);
 		}else
 			if(s instanceof Player) {
 				s.sendMessage(Messages.commandSyntax(command, prefix, "<Spieler>"));
 			}else
 		s.sendMessage(Messages.commandSyntax(command, prefix, "[Spieler]"));
 		return true;
+	}
+
+	private static long getPlaytime(String playerName) {
+		Player t = Bukkit.getPlayer(playerName);
+		SMPPlayer smpp;
+		if(t == null) {
+			UUID uuid = SMPPlayer.nameToUUID(playerName);
+			if(uuid == null) {
+				return -1;
+			}
+			smpp = SMPPlayer.getPlayer(uuid);
+		}else {
+			smpp = SMPPlayer.getPlayer(t.getUniqueId());
+			SMPPlayer.updatePlayTime(smpp, t);
+		}
+
+		return smpp.getPlayTime();
 	}
 }
