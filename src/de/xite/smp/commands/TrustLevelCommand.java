@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 
 import de.xite.smp.main.Main;
 import de.xite.smp.utils.SMPPlayer;
-import de.xite.smp.utils.UUIDFetcher;
 import net.md_5.bungee.api.ChatColor;
 
 public class TrustLevelCommand implements CommandExecutor, TabCompleter{
@@ -49,7 +48,7 @@ public class TrustLevelCommand implements CommandExecutor, TabCompleter{
 				return true;
 			}
 
-			SMPPlayer smpp = SMPPlayer.getPlayer(UUIDFetcher.getUUID(args[1]));
+			SMPPlayer smpp = SMPPlayer.getPlayer(SMPPlayer.nameToUUID(args[1]));
 			if(!checkSMPPlayer(smpp, s))
 				return true;
 
@@ -70,7 +69,7 @@ public class TrustLevelCommand implements CommandExecutor, TabCompleter{
 				return true;
 			}
 
-			SMPPlayer smpp = SMPPlayer.getPlayer(UUIDFetcher.getUUID(args[1]));
+			SMPPlayer smpp = SMPPlayer.getPlayer(SMPPlayer.nameToUUID(args[1]));
 			if(!checkSMPPlayer(smpp, s))
 				return true;
 
@@ -96,7 +95,7 @@ public class TrustLevelCommand implements CommandExecutor, TabCompleter{
 				return true;
 			}
 			
-			SMPPlayer smpp = SMPPlayer.getPlayer(UUIDFetcher.getUUID(args[1]));
+			SMPPlayer smpp = SMPPlayer.getPlayer(SMPPlayer.nameToUUID(args[1]));
 			if(!checkSMPPlayer(smpp, s))
 				return true;
 
