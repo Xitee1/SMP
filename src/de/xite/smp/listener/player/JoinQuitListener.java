@@ -9,7 +9,7 @@ import de.xite.smp.utils.Locations;
 import de.xite.smp.utils.SMPPlayer;
 import net.kyori.adventure.text.Component;
 
-import java.util.ArrayList;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,20 +29,23 @@ public class JoinQuitListener implements Listener {
 	@EventHandler
 	public void onLogin(PlayerLoginEvent e) {
 		Player p = e.getPlayer();
-		if(!Database.isConnected()) {
-			e.disallow(Result.KICK_OTHER, Component.text(ChatColor.RED+"Der Server konnte keine Verbindung zur Datenbank herstellen! Bitte kontaktiere einen Admin (Discord) und versuche es später erneut."));
-			return;
-		}
-		
+
 		SMPPlayer smpp = SMPPlayer.getPlayer(p.getUniqueId());
-		if(p.isBanned() || (smpp != null && smpp.isBanned())) {
-			String banReason = "Unbekannt.";
-			if(smpp != null)
-				banReason = smpp.getBanReason();
+		if(!Database.isConnected() || smpp.getDataLoadingFailed()) {
 			e.disallow(Result.KICK_OTHER, Component.text(
-							ChatColor.AQUA+"Du bist hier nicht mehr erwünscht.\n" +
-							ChatColor.GRAY+"Generell nehmen wir keine Entbannungsanträge an.\n" +
-							ChatColor.GRAY+"Wenn du aber einen guten Grund hast, kannst du es ja mal mit einer Anfrage in unserem Discord versuchen.\n\n" +
+					"Deine Spielerdaten konnten nicht geladen werden.\n" +
+					"Bitte versuche es erneut. Sollte das Problem weiterhin\n" +
+					"bestehen, melde dich bitte im Discord."
+			));
+		}
+
+		if(p.isBanned() || (smpp.isBanned())) {
+			String banReason = smpp.getBanReason();
+			if(banReason == null) {
+				banReason = "Unbekannt.";
+			}
+			e.disallow(Result.KICK_BANNED, Component.text(
+							ChatColor.AQUA+"Du bist gebannt.\n" +
 							ChatColor.RED+"Grund: "+ChatColor.AQUA+banReason));
 		}
 	}
@@ -50,32 +53,28 @@ public class JoinQuitListener implements Listener {
 	public void onJoin(PlayerJoinEvent e) {
 		Player p = e.getPlayer();
 		UUID uuid = p.getUniqueId();
-		SMPPlayer smpp = SMPPlayer.getPlayer(p.getUniqueId());
+		SMPPlayer smpp = SMPPlayer.getPlayer(uuid);
+
+		// update SMPPlayer
+		smpp.setName(p.getName());
+		smpp.setLastJoined(new Timestamp(System.currentTimeMillis()));
+		smpp.persist();
 
 		// Join message
 		e.joinMessage(Component.text(ChatColor.YELLOW + p.getName() + " hat das Spiel betreten."));
 		SMPcord.sendChatMessage("**"+p.getName()+" hat das Spiel betreten.**");
 
 		// Check if SMPPlayer does exist. If not, create the SMPPlayer and send welcome message.
-		if(smpp == null) {
-			smpp = SMPPlayer.create(uuid);
-			if(smpp != null) {
-				Bukkit.getScheduler().runTaskLater(Main.pl, () -> {
-					Location spawn = Locations.getLocation("spawn");
-					if(spawn != null)
-						p.teleport(spawn);
+		if(!p.hasPlayedBefore()) {
+			Bukkit.getScheduler().runTaskLater(Main.pl, () -> {
+				Location spawn = Locations.getLocation("spawn");
+				if(spawn != null)
+					p.teleport(spawn);
 
-					Bukkit.getServer().broadcast(Component.text(ChatColor.GREEN+"Herzlich Willkommen, "+ChatColor.YELLOW+p.getName()+ChatColor.GREEN+"!"));
-				}, 20);
-			}else {
-				p.kick(Component.text("Leider gab es ein Problem mit der Datenbank. Kontaktiere bitte einen Admin im Discord und versuche es später erneut."));
-				Main.pl.getLogger().severe("Player "+p.getName()+" joined but could not be created in database!");
-				return;
-			}
+				Bukkit.getServer().broadcast(Component.text(ChatColor.GREEN+"Herzlich Willkommen, "+ChatColor.YELLOW+p.getName()+ChatColor.GREEN+"!"));
+				SMPcord.sendChatMessage("**Herzlich Willkommen, "+p.getName()+"!**");
+			}, 20);
 		}
-
-		// Update current player name (in case the player changed it)
-		smpp.setName(p.getName());
 
 		// TrustLevel permissions
 		int trustLevel = smpp.getTrustLevel();
@@ -99,6 +98,7 @@ public class JoinQuitListener implements Listener {
 		Player p = e.getPlayer();
 		Location loc = p.getLocation();
 		UUID uuid = p.getUniqueId();
+		SMPPlayer smpp = SMPPlayer.getPlayer(uuid);
 
 		// Quit message
 		e.quitMessage(Component.text(ChatColor.YELLOW + p.getName() + " hat das Spiel verlassen."));
@@ -110,17 +110,10 @@ public class JoinQuitListener implements Listener {
 		ChunkInfoCommand.chunkInfoList.remove(p);
 
 		// Save player data
+		smpp.setLogoutLocation(loc);
 		Bukkit.getScheduler().runTaskAsynchronously(Main.pl, () -> {
-			SMPPlayer smpp = SMPPlayer.getPlayer(uuid);
-			if(smpp != null) {
-				smpp.saveLastJoined();
-				smpp.savePlayTime();
-				smpp.setLogoutLocation(loc);
-
-				SMPPlayer.unloadSMPPlayer(uuid);
-			}else {
-				Main.pl.getLogger().severe("SMPPlayer "+p.getName()+" is null and could not be saved!");
-			}
+			smpp.persist();
+			SMPPlayer.unloadSMPPlayer(uuid);
 		});
 	}
 }

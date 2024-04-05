@@ -62,5 +62,7 @@ dangerousBlocks:
   - LAVA_BUCKET
   - FLINT_AND_STEEL
 
-
 debug: false
+
+# DO NOT TOUCH BELOW THIS LINE
+databaseVersion: 3

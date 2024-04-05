@@ -1,6 +1,8 @@
 package de.xite.smp.database;
 
 import de.xite.smp.commands.ChunkInfoCommand;
+import de.xite.smp.database.migrations.Migrate_v3;
+import de.xite.smp.database.statement.ChunkStatement;
 import de.xite.smp.main.Main;
 import de.xite.smp.utils.ChunkInfo;
 
@@ -8,8 +10,10 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 
+import de.xite.smp.utils.SMPPlayer;
 import org.bukkit.Bukkit;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -32,14 +36,14 @@ public class Database {
 		if(!isConnected()) {
 			Main.pl.getLogger().info("Connecting to SQL database...");
 
-			if(prefix == null || prefix.length() == 0) {
+			if(prefix == null || prefix.isEmpty()) {
 				pl.getLogger().severe("You haven't set a table prefix");
 				return false;
 			}
 
 			HikariConfig config = new HikariConfig();
 			config.addDataSourceProperty("characterEncoding", "UTF-8");
-			config.addDataSourceProperty("connectionTimeout", "28800");
+			config.addDataSourceProperty("connectionTimeout", "30");
 
 			/* https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration */
 			/* https://cdn.oreillystatic.com/en/assets/1/event/21/Connector_J%20Performance%20Gems%20Presentation.pdf */
@@ -62,7 +66,7 @@ public class Database {
 				String database = pl.getConfig().getString("sql.mysql.database");
 				boolean useSSL = pl.getConfig().getBoolean("sql.mysql.useSSL");
 
-				if(host == null || host.length() == 0) {
+				if(host == null || host.isEmpty()) {
 					pl.getLogger().severe("You haven't set a host.");
 					return false;
 				}
@@ -70,15 +74,15 @@ public class Database {
 					Main.pl.getLogger().severe("You haven't set a port.");
 					return false;
 				}
-				if(database == null || database.length() == 0) {
+				if(database == null || database.isEmpty()) {
 					pl.getLogger().severe("You haven't set a database.");
 					return false;
 				}
-				if(username == null || username.length() == 0) {
+				if(username == null || username.isEmpty()) {
 					pl.getLogger().severe("You haven't set a username.");
 					return false;
 				}
-				if(password == null || password.length() == 0) {
+				if(password == null || password.isEmpty()) {
 					pl.getLogger().severe("You haven't set a password.");
 					return false;
 				}
@@ -110,10 +114,11 @@ public class Database {
 		    ds = new HikariDataSource(config);
 
 			getConnection(); // Get connection
-			pl.getLogger().info("SQL connected...");
+			pl.getLogger().info("SQL connected. Creating tables...");
 
 			// Create tables (if not exists)
 			createTables(sqlType);
+			runMigrations();
 
 			// Create prepared statements
 			try {
@@ -167,39 +172,48 @@ public class Database {
 
 	public static void startMySQLHandler() {
 		// Execute batches every 30 seconds
-		Bukkit.getScheduler().runTaskTimerAsynchronously(pl, new Runnable() {
-			@Override
-			public void run() {
-				executeAllBatches();
+		Bukkit.getScheduler().runTaskTimerAsynchronously(pl, () -> {
+			executeAllBatches();
+
+			for(Map.Entry<UUID, SMPPlayer> smppMap : SMPPlayer.players.entrySet()) {
+				SMPPlayer smpp = smppMap.getValue();
+				smpp.persist();
 			}
-		}, 20*30, 20*30);
+		}, 20*60*5, 20*60*5);
+	}
+
+	private static void runMigrations() {
+		int currentVersion = pl.getConfig().getInt("databaseVersion");
+		if(currentVersion < 3) {
+			Migrate_v3.migrate();
+			pl.getConfig().set("databaseVersion", 3);
+			pl.saveConfig();
+		}
 	}
 
 	public static void executeAllBatches() {
 		try {
 			if(Main.debug)
 				pl.getLogger().info("Executing all batches..");
+
 			chunkInsertPS.executeBatch();
+			if(Main.debug) {
+				Main.pl.getLogger().info("Executed " + ChunkStatement.chunkInsertPSBatches + " batched chunk inserts.");
+			}
+			ChunkStatement.chunkInsertPSBatches = 0;
+
 			chunkUpdatePS.executeBatch();
+			if(Main.debug) {
+				Main.pl.getLogger().info("Executed " + ChunkStatement.chunkUpdatePSBatches + " batched chunk updates.");
+			}
+			ChunkStatement.chunkInsertPSBatches = 0;
+
 			if(Main.debug)
 				pl.getLogger().info("All batches have been executed.");
 		} catch (SQLException e) {
 			pl.getLogger().severe("Could not execute statement batch!");
 			throw new RuntimeException(e);
 		}
-	}
-  	
-	public static boolean update(String qry) {
-		try {
-			Statement st = getConnection().createStatement();
-			st.executeUpdate(qry);
-			st.close();
-			return true;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			Main.pl.getLogger().severe("Could not execute MySQL query.");
-		}
-		return false;
 	}
 
 	private static void createTables(String sqlType) {
@@ -227,7 +241,7 @@ public class Database {
 						"`lastJoined` DATETIME NOT NULL," +
 						"`logoutLocation` VARCHAR(255) NOT NULL," +
 						"`playTime` INT NOT NULL," +
-						"`banReason` VARCHAR(255) NOT NULL," +
+						"`banReason` VARCHAR(255)," +
 						"PRIMARY KEY (`id`)) ENGINE = InnoDB;");
 			}
 
@@ -248,10 +262,10 @@ public class Database {
 						"`name` VARCHAR(16) NOT NULL," +
 						"`trustlevel` INT NOT NULL," +
 						"`firstJoined` DATETIME NOT NULL," +
-						"`lastJoined` DATETIME NOT NULL," +
-						"`logoutLocation` VARCHAR(255) NOT NULL," +
+						"`lastJoined` DATETIME," +
+						"`logoutLocation` VARCHAR(255)," +
 						"`playTime` INT NOT NULL," +
-						"`banReason` VARCHAR(255) NOT NULL);");
+						"`banReason` VARCHAR(255));");
 			}
 		} catch (SQLException e) {
 			pl.getLogger().severe("Tables could not be created!");
@@ -260,7 +274,7 @@ public class Database {
 	}
 	
 	// ----------- //
-	// MySQl Utils //
+	// SQL Utils //
 	// ------------//
 	public static String getString(String table, String value, String where) {
 		String result = null;

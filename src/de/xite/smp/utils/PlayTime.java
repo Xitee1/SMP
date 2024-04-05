@@ -11,11 +11,5 @@ public class PlayTime {
 			for(Player p : Bukkit.getOnlinePlayers())
 				SMPPlayer.getPlayer(p.getUniqueId()).countPlayTime();
 		}, 20, 20);
-		
-		// Save the playtime every 5 minutes (in case server crashes)
-		Bukkit.getScheduler().runTaskTimerAsynchronously(Main.pl, () -> {
-			for(Player p : Bukkit.getOnlinePlayers())
-				SMPPlayer.getPlayer(p.getUniqueId()).savePlayTime();
-		}, 20*60*5, 20*60*5);
 	}
 }

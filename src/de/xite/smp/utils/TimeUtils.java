@@ -5,10 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class TimeUtils {
-	public static String convertPlayTimeFromSecondsToString(int playtime) {
-		int hours = playtime / 3600;
-		int minutes = (playtime % 3600) / 60;
-		int seconds = playtime % 60;
+	public static String convertPlayTimeFromSecondsToString(long playtime) {
+		long hours = playtime / 3600;
+		long minutes = (playtime % 3600) / 60;
+		long seconds = playtime % 60;
 		
 		String s = "";
 		

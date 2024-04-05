@@ -1,12 +1,16 @@
 package de.xite.smp.database.statement;
 
 import de.xite.smp.database.Database;
+import de.xite.smp.main.Main;
 import org.bukkit.Chunk;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class ChunkStatement {
+    public static int chunkInsertPSBatches = 0;
+    public static int chunkUpdatePSBatches = 0;
+
     public static void insert(Chunk chunk, String dateCreated, String versionCreated) {
         PreparedStatement ps = Database.chunkInsertPS;
         try {
@@ -18,7 +22,15 @@ public class ChunkStatement {
             ps.setString(6, "none");
             ps.setString(7, "none");
             ps.addBatch();
-        } catch (SQLException e){
+
+            chunkInsertPSBatches += 1;
+            if(chunkInsertPSBatches % 1000 == 0) {
+                ps.executeBatch();
+                if(Main.debug) {
+                    Main.pl.getLogger().info("Executed " + chunkInsertPSBatches + " batched chunk inserts.");
+                }
+            }
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -32,6 +44,14 @@ public class ChunkStatement {
             ps.setInt(4, chunk.getX());
             ps.setInt(5, chunk.getZ());
             ps.addBatch();
+
+            chunkUpdatePSBatches += 1;
+            if (chunkUpdatePSBatches % 1000 == 0) {
+                ps.executeBatch();
+                if(Main.debug) {
+                    Main.pl.getLogger().info("Executed " + chunkUpdatePSBatches + " batched chunk updates.");
+                }
+            }
         } catch (SQLException e){
             throw new RuntimeException(e);
         }
