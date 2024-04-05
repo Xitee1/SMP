@@ -2,6 +2,7 @@ package de.xite.smp.database;
 
 import de.xite.smp.commands.ChunkInfoCommand;
 import de.xite.smp.database.migrations.Migrate_v3;
+import de.xite.smp.database.migrations.Migrate_v4;
 import de.xite.smp.database.statement.ChunkStatement;
 import de.xite.smp.main.Main;
 import de.xite.smp.utils.ChunkInfo;
@@ -122,7 +123,7 @@ public class Database {
 
 			// Create prepared statements
 			try {
-				chunkInsertPS = getConnection().prepareStatement("INSERT INTO `"+prefix+"chunks` (`world`, `loc_x`, `loc_z`, `version_created`, `date_created`, `version_modified`, `date_modified`) VALUES (?, ?, ?, ?, ?, ?, ?)");
+				chunkInsertPS = getConnection().prepareStatement("INSERT INTO `"+prefix+"chunks` (`world`, `loc_x`, `loc_z`, `version_created`, `date_created`, `version_modified`, `date_modified`) VALUES (?, ?, ?, ?, ?, NULL, NULL)");
 				chunkUpdatePS = getConnection().prepareStatement("UPDATE `"+prefix+"chunks` SET `version_modified`=?, `date_modified`=? WHERE `world`=? AND `loc_x`=? AND `loc_z`=?");
 			} catch (SQLException e) {
 				pl.getLogger().severe("Could not prepare statement.");
@@ -189,6 +190,12 @@ public class Database {
 			pl.getConfig().set("databaseVersion", 3);
 			pl.saveConfig();
 		}
+
+		if(currentVersion < 4) {
+			Migrate_v4.migrate();
+			pl.getConfig().set("databaseVersion", 4);
+			pl.saveConfig();
+		}
 	}
 
 	public static void executeAllBatches() {
@@ -253,12 +260,13 @@ public class Database {
 						"`loc_z` INT NOT NULL," +
 						"`version_created` VARCHAR(255) NOT NULL," +
 						"`date_created` VARCHAR(255) NOT NULL," +
-						"`version_modified` VARCHAR(255) NOT NULL," +
-						"`date_modified` VARCHAR(255) NOT NULL);");
+						"`version_modified` VARCHAR(255)," +
+						"`date_modified` VARCHAR(255)," +
+						"CONSTRAINT unique_chunk UNIQUE(world, loc_x, loc_z));");
 
 				// players table
 				st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + prefix + "players` " +
-						"(`uuid` VARCHAR(50) NOT NULL," +
+						"(`uuid` VARCHAR(50) NOT NULL UNIQUE," +
 						"`name` VARCHAR(16) NOT NULL," +
 						"`trustlevel` INT NOT NULL," +
 						"`firstJoined` DATETIME NOT NULL," +

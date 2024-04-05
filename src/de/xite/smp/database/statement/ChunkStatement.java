@@ -11,6 +11,11 @@ public class ChunkStatement {
     public static int chunkInsertPSBatches = 0;
     public static int chunkUpdatePSBatches = 0;
 
+    /**
+     * @param chunk the MC chunk
+     * @param dateCreated the creation date as string
+     * @param versionCreated the creation version as string
+     */
     public static void insert(Chunk chunk, String dateCreated, String versionCreated) {
         PreparedStatement ps = Database.chunkInsertPS;
         try {
@@ -19,12 +24,10 @@ public class ChunkStatement {
             ps.setInt(3, chunk.getZ());
             ps.setString(4, versionCreated);
             ps.setString(5, dateCreated);
-            ps.setString(6, "none");
-            ps.setString(7, "none");
             ps.addBatch();
 
             chunkInsertPSBatches += 1;
-            if(chunkInsertPSBatches % 1000 == 0) {
+            if(chunkInsertPSBatches % 500 == 0) {
                 ps.executeBatch();
                 if(Main.debug) {
                     Main.pl.getLogger().info("Executed " + chunkInsertPSBatches + " batched chunk inserts.");
@@ -35,6 +38,11 @@ public class ChunkStatement {
         }
     }
 
+    /**
+     * @param chunk the MC chunk
+     * @param dateModified the modify date as string
+     * @param versionModified the modify version as string
+     */
     public static void update(Chunk chunk, String dateModified, String versionModified) {
         PreparedStatement ps = Database.chunkUpdatePS;
         try {
@@ -46,7 +54,7 @@ public class ChunkStatement {
             ps.addBatch();
 
             chunkUpdatePSBatches += 1;
-            if (chunkUpdatePSBatches % 1000 == 0) {
+            if (chunkUpdatePSBatches % 500 == 0) {
                 ps.executeBatch();
                 if(Main.debug) {
                     Main.pl.getLogger().info("Executed " + chunkUpdatePSBatches + " batched chunk updates.");

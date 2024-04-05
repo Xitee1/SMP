@@ -86,7 +86,7 @@ public class ChunkInfo {
                     ChatColor.GRAY+" ("+ChatColor.AQUA+creationVersion+ChatColor.GRAY+")"+ // creation version
                     separator;
 
-            if(modifiedDate.equals("none")) {
+            if(modifiedDate == null) {
                 message += ChatColor.GRAY+"Originalzustand";
             }else {
                 message +=

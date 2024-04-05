@@ -1,5 +1,5 @@
 name: SMP
-version: 1.3
+version: 1
 author: Xitee
 main: de.xite.smp.main.Main
 depend: [CoreProtect]

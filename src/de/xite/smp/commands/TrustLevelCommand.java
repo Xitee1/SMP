@@ -59,7 +59,7 @@ public class TrustLevelCommand implements CommandExecutor, TabCompleter{
 				s.sendMessage(pr+"Der Spieler "+ChatColor.YELLOW+args[1]+ChatColor.GRAY+" hat nun das TrustLevel "+showTrustLevel(smpp.getTrustLevel())+".");
 				Player t = Bukkit.getPlayer(args[1]);
 				if(t != null)
-					t.sendMessage(pr+ChatColor.GREEN+"Herzlichen Glückwunsch! "+ChatColor.GRAY+"Dein TrustLevel wurde von erhöht! Du hast nun das TrustLevel "+showTrustLevel(smpp.getTrustLevel()));
+					t.sendMessage(pr+ChatColor.GREEN+"Herzlichen Glückwunsch! "+ChatColor.GRAY+"Dein TrustLevel wurde erhöht! Du hast nun das TrustLevel "+showTrustLevel(smpp.getTrustLevel()));
 			}
 		}else if(args.length == 2 && args[0].equalsIgnoreCase("demote")) {
 			// Demote player's TL (-1)

@@ -1,6 +1,8 @@
 package de.xite.smp.listener.player;
 
 import de.xite.smp.database.statement.ChunkStatement;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -27,10 +29,7 @@ public class BlockBreakPlaceListener implements Listener {
 		}
 		
 		if(!e.isCancelled()) {
-			SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-			String dateModified = sdf.format(new Date());
-			String versionModified = Main.MCVersion;
-			ChunkStatement.update(e.getBlock().getLocation().getChunk(), dateModified, versionModified);
+			chunkUpdated(e.getBlock().getChunk());
 		}
 	}
 	
@@ -44,13 +43,9 @@ public class BlockBreakPlaceListener implements Listener {
 		}
 
 		if(!e.isCancelled()) {
-			SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-			String dateModified = sdf.format(new Date());
-			String versionModified = Main.MCVersion;
-			ChunkStatement.update(e.getBlock().getLocation().getChunk(), dateModified, versionModified);
+			chunkUpdated(e.getBlock().getChunk());
 		}
 	}
-	
 	
 	public Boolean isPlayerAllowedToBreakOrPlace(Player p, Material m) {
 		/*
@@ -91,5 +86,13 @@ public class BlockBreakPlaceListener implements Listener {
 			}
 		}
 		return true;
+	}
+
+	private void chunkUpdated(Chunk chunk) {
+		Bukkit.getScheduler().runTaskAsynchronously(Main.pl, () -> {
+			SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+			String dateModified = sdf.format(new Date());
+			ChunkStatement.update(chunk, dateModified, Main.MCVersion);
+		});
 	}
 }
