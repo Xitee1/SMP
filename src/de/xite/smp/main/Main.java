@@ -40,7 +40,7 @@ public class Main extends JavaPlugin{
 	
 	public static String hexColorBegin = "#", hexColorEnd = ""; // hex color Syntax
 
-	public static Boolean debug = false;
+	public static boolean debug = false;
 
 	@Override
 	public void onEnable() {
@@ -124,20 +124,20 @@ public class Main extends JavaPlugin{
 		Database.disconnect();
 
 		// Prevent the hoster from deleting the logs
-		pl.getLogger().info("Moving logs..");
-		File destinationFolder = new File("server_logs");
-		File originalLogFile = new File("logs/latest.log");
-		if(!destinationFolder.exists())
-			destinationFolder.mkdir();
-		if(originalLogFile.exists()) {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd__HH_mm");
-			try {
-				Files.copy(originalLogFile, new File(destinationFolder.getAbsolutePath()+"/"+sdf.format(new Date())+".log"));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		pl.getLogger().info("Logs moved!");
+//		pl.getLogger().info("Moving logs..");
+//		File destinationFolder = new File("server_logs");
+//		File originalLogFile = new File("logs/latest.log");
+//		if(!destinationFolder.exists())
+//			destinationFolder.mkdir();
+//		if(originalLogFile.exists()) {
+//			SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd__HH_mm");
+//			try {
+//				Files.copy(originalLogFile, new File(destinationFolder.getAbsolutePath()+"/"+sdf.format(new Date())+".log"));
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		pl.getLogger().info("Logs moved!");
 	}
 
 	public static CoreProtectAPI getCoreProtect() {
