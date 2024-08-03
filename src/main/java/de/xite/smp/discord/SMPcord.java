@@ -2,6 +2,7 @@ package de.xite.smp.discord;
 
 import javax.security.auth.login.LoginException;
 
+import de.xite.smp.config.PluginConfig;
 import de.xite.smp.main.Main;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -13,16 +14,10 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 public class SMPcord {
 	static Main pl = Main.pl;
+	static PluginConfig plConfig = Main.getPluginConfig();
 	
-	String roleID_trustLevel_1 = "xxx";
-	String roleID_trustLevel_2 = "xxx";
-	String roleID_trustLevel_3 = "xxx";
-	String roleID_trustLevel_4 = "xxx";
-	String roleID_trustLevel_5 = "xxx";
-	String roleID_trustLevel_6 = "xxx";
-	
-	private static final String token = pl.getConfig().getString("discord.token");
-	public static final String textChannel = Main.pl.getConfig().getString("discord.chatChannel");
+	private static final String token = plConfig.getDiscordToken();
+	private static final String textChannel = plConfig.getDiscordChatChannel();
 	
 	private static JDA jda;
 	

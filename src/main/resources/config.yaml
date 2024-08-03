@@ -61,6 +61,7 @@ interactAllowedTrustLevel1:
 dangerousBlocks:
   - LAVA_BUCKET
   - FLINT_AND_STEEL
+  - TNT
 
 debug: false
 

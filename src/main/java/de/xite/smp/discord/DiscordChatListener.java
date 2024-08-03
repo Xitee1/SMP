@@ -27,7 +27,7 @@ public class DiscordChatListener extends ListenerAdapter implements Listener{
     @Override
     public void onMessageReceived(MessageReceivedEvent e) {
         if(!e.getAuthor().isBot()) {
-			if (e.getChannel().getName().equals(SMPcord.textChannel)) {
+			if (e.getChannel().getName().equals(Main.getPluginConfig().getDiscordChatChannel())) {
 				Message msg = e.getMessage();
 				final TextComponent textComponent = Component.text("[Discord] ").color(TextColor.fromCSSHexString("#5865f2"))
 						.append(Component.text("<" + e.getAuthor().getName() + "> ").color(TextColor.fromCSSHexString("#009c9b")))

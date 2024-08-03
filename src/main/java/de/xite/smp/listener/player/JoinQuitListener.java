@@ -3,9 +3,9 @@ package de.xite.smp.listener.player;
 import de.xite.smp.commands.BlockInfoCommand;
 import de.xite.smp.commands.ChunkInfoCommand;
 import de.xite.smp.discord.SMPcord;
+import de.xite.smp.main.Logger;
 import de.xite.smp.main.Main;
 import de.xite.smp.database.Database;
-import de.xite.smp.utils.Locations;
 import de.xite.smp.entities.SMPPlayer;
 import net.kyori.adventure.text.Component;
 
@@ -67,11 +67,15 @@ public class JoinQuitListener implements Listener {
 		// Check if SMPPlayer does exist. If not, create the SMPPlayer and send welcome message.
 		if(!p.hasPlayedBefore()) {
 			Bukkit.getScheduler().runTaskLater(Main.pl, () -> {
-				Location spawn = Locations.getLocation("spawn");
-				if(spawn != null)
+				Location spawn = Main.getLocationsConfig().getSpawnLocation();
+				if(spawn != null) {
 					p.teleport(spawn);
+				}else {
+					Logger.warning("Spawn location is not set! New player hasn't been teleported.");
+				}
 
-				Bukkit.getServer().broadcast(Component.text(ChatColor.GREEN+"Herzlich Willkommen, "+ChatColor.YELLOW+p.getName()+ChatColor.GREEN+"!"));
+
+				Bukkit.getServer().broadcast(Component.text("§aHerzlich Willkommen, §e"+p.getName()+"§a!"));
 				SMPcord.sendChatMessage("**Herzlich Willkommen, "+p.getName()+"!**");
 			}, 20);
 		}
@@ -85,7 +89,7 @@ public class JoinQuitListener implements Listener {
 
 		pa.setPermission("trustlevel.level."+trustLevel, true);
 
-		List<String> perms = Main.pl.getConfig().getStringList("trustlevel."+trustLevel+".perms");
+		List<String> perms = Main.getPluginConfig().getTrustLevelPermissions(trustLevel);
 		for(String s : perms) {
 			pa.setPermission(s, true);
 			if(Main.debug)

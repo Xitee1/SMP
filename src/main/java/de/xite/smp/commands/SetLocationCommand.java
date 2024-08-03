@@ -1,7 +1,8 @@
 package de.xite.smp.commands;
 
+import de.xite.smp.config.LocationsConfig;
+import de.xite.smp.main.Main;
 import de.xite.smp.main.Messages;
-import de.xite.smp.utils.Locations;
 import de.xite.smp.entities.SMPPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
@@ -35,8 +36,16 @@ public class SetLocationCommand implements CommandExecutor {
             Location loc = p.getLocation();
             String name = args[0].toLowerCase();
 
-            Locations.setLocation(loc, name);
-            s.sendMessage(Component.text(prefix+ChatColor.GREEN+"Die Location "+ChatColor.AQUA+name+ChatColor.GREEN+" wurde gesetzt."));
+            LocationsConfig locConfig = Main.getLocationsConfig();
+
+            if(name.equals("spawn")) {
+                locConfig.setSpawnLocation(loc);
+            }else {
+                s.sendMessage(prefix+"§cDies ist kein gültiger Standort. Verfügbare Standort sind:");
+                s.sendMessage(prefix+"§7spawn");
+            }
+
+            s.sendMessage(Component.text(prefix+"§aDer Standort §3"+name+"§a wurde gesetzt."));
 
             return true;
         }

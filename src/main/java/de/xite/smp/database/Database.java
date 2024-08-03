@@ -1,9 +1,11 @@
 package de.xite.smp.database;
 
 import de.xite.smp.commands.ChunkInfoCommand;
+import de.xite.smp.config.PluginConfig;
 import de.xite.smp.database.migrations.Migrate_v3;
 import de.xite.smp.database.migrations.Migrate_v4;
 import de.xite.smp.database.statement.ChunkStatement;
+import de.xite.smp.main.Logger;
 import de.xite.smp.main.Main;
 import de.xite.smp.utils.ChunkInfo;
 
@@ -23,9 +25,10 @@ import org.bukkit.entity.Player;
 
 public class Database {
 	static Main pl = Main.pl;
+	static PluginConfig plConfig = Main.getPluginConfig();
 
-	public static String sqlType = pl.getConfig().getString("sql.type");
-	public static String prefix = pl.getConfig().getString("sql.table-prefix");
+	public static String sqlType = plConfig.getSqlType();
+	public static String prefix = plConfig.getSqlTablePrefix();
 
 	public static PreparedStatement chunkInsertPS;
 	public static PreparedStatement chunkUpdatePS;
@@ -60,12 +63,12 @@ public class Database {
 			config.addDataSourceProperty("allowMultiQueries",true);
 
 			if(sqlType.equals("mysql")) {
-				String host = pl.getConfig().getString("sql.mysql.host");
-				int port = pl.getConfig().getInt("sql.mysql.port");
-				String username = pl.getConfig().getString("sql.mysql.user");
-				String password = pl.getConfig().getString("sql.mysql.password");
-				String database = pl.getConfig().getString("sql.mysql.database");
-				boolean useSSL = pl.getConfig().getBoolean("sql.mysql.useSSL");
+				String host = plConfig.getMysqlHost();
+				int port = plConfig.getMysqlPort();
+				String username = plConfig.getMysqlUser();
+				String password = plConfig.getMysqlPassword();
+				String database = plConfig.getMysqlDatabase();
+				boolean useSSL = plConfig.useSslForMysqlConnection();
 
 				if(host == null || host.isEmpty()) {
 					pl.getLogger().severe("You haven't set a host.");
@@ -184,17 +187,15 @@ public class Database {
 	}
 
 	private static void runMigrations() {
-		int currentVersion = pl.getConfig().getInt("databaseVersion");
+		int currentVersion = plConfig.getDatabaseVersion();
 		if(currentVersion < 3) {
 			Migrate_v3.migrate();
-			pl.getConfig().set("databaseVersion", 3);
-			pl.saveConfig();
+			plConfig.setDatabaseVersion(3);
 		}
 
 		if(currentVersion < 4) {
 			Migrate_v4.migrate();
-			pl.getConfig().set("databaseVersion", 4);
-			pl.saveConfig();
+			plConfig.setDatabaseVersion(4);
 		}
 	}
 
@@ -205,20 +206,20 @@ public class Database {
 
 			chunkInsertPS.executeBatch();
 			if(Main.debug) {
-				Main.pl.getLogger().info("Executed " + ChunkStatement.chunkInsertPSBatches + " batched chunk inserts.");
+				Logger.info("Executed " + ChunkStatement.chunkInsertPSBatches + " batched chunk inserts.");
 			}
 			ChunkStatement.chunkInsertPSBatches = 0;
 
 			chunkUpdatePS.executeBatch();
 			if(Main.debug) {
-				Main.pl.getLogger().info("Executed " + ChunkStatement.chunkUpdatePSBatches + " batched chunk updates.");
+				Logger.info("Executed " + ChunkStatement.chunkUpdatePSBatches + " batched chunk updates.");
 			}
 			ChunkStatement.chunkInsertPSBatches = 0;
 
 			if(Main.debug)
-				pl.getLogger().info("All batches have been executed.");
+				Logger.info("All batches have been executed.");
 		} catch (SQLException e) {
-			pl.getLogger().severe("Could not execute statement batch!");
+			Logger.error("Could not execute statement batch!");
 			throw new RuntimeException(e);
 		}
 	}

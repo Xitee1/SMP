@@ -6,6 +6,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.xite.smp.commands.*;
+import de.xite.smp.config.LocationsConfig;
+import de.xite.smp.config.PluginConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.plugin.Plugin;
@@ -42,6 +44,9 @@ public class Main extends JavaPlugin{
 
 	public static boolean debug = false;
 
+	private static PluginConfig pluginConfig;
+	private static LocationsConfig locationsConfig;
+
 	@Override
 	public void onEnable() {
 		pl = this;
@@ -51,21 +56,25 @@ public class Main extends JavaPlugin{
 		MCVersion = vstring.substring(0, vstring.lastIndexOf("-R")).replace("_", ".");
 
 		// Load config and services
-		Config.loadAllConfigs();
+		pluginConfig = new PluginConfig();
+		pluginConfig.load();
 
-		debug = pl.getConfig().getBoolean("debug");
+		locationsConfig = new LocationsConfig();
+		locationsConfig.load();
 
-		for(String s : pl.getConfig().getStringList("interactAllowedTrustLevel1"))
+		debug = getPluginConfig().isDebugEnabled();
+
+		for(String s : getPluginConfig().getTrustLevelBaseInteractBlocks())
 			interactAllowedTrustLevel1.add(Material.getMaterial(s));
 
-		for(String s : pl.getConfig().getStringList("dangerousBlocks"))
+		for(String s : getPluginConfig().getDangerousBlocks())
 			dangerousBlocks.add(Material.getMaterial(s));
 
 		// Connect to MySQl database
 		Database.connect();
 		
 		// Start up the Discord bot (if enabled)
-		if(getConfig().getBoolean("discord.enabled"))
+		if(getPluginConfig().isDiscordEnabled())
 			Bukkit.getScheduler().runTaskAsynchronously(pl, SMPcord::connectDiscord);
 
 		// Start other needed services/schedulers
@@ -138,6 +147,14 @@ public class Main extends JavaPlugin{
 //			}
 //		}
 //		pl.getLogger().info("Logs moved!");
+	}
+
+	public static PluginConfig getPluginConfig() {
+		return pluginConfig;
+	}
+
+	public static LocationsConfig getLocationsConfig() {
+		return locationsConfig;
 	}
 
 	public static CoreProtectAPI getCoreProtect() {
