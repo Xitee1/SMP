@@ -1,10 +1,6 @@
 package de.xite.smp.main;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,8 +11,6 @@ import org.bukkit.Material;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import com.google.common.io.Files;
 
 import de.xite.smp.discord.DiscordChatListener;
 import de.xite.smp.discord.SMPcord;
