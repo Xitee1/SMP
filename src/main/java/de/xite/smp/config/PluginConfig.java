@@ -1,8 +1,5 @@
 package de.xite.smp.config;
 
-import de.xite.smp.main.Main;
-import org.bukkit.configuration.file.YamlConfiguration;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,15 +11,6 @@ public class PluginConfig extends BaseConfig {
     public void init() {
         // load plugin descriptions
         pluginDescriptions = new HashMap<>();
-
-        for (Map<?, ?> pluginMap : getYamlConfiguration().getMapList("plugins")) {
-            for (Map.Entry<?, ?> entry : pluginMap.entrySet()) {
-                String pluginName = (String) entry.getKey();
-                Map<?, ?> pluginData = (Map<?, ?>) entry.getValue();
-                String description = (String) pluginData.get("description");
-                pluginDescriptions.put(pluginName, description);
-            }
-        }
 
 //        for (Map<?, ?> pluginMap : getYamlConfiguration().getMapList("plugins")) {
 //            for (Map.Entry<?, ?> entry : pluginMap.entrySet()) {
@@ -135,8 +123,8 @@ public class PluginConfig extends BaseConfig {
     //---------------------//
     //--- Miscellaneous ---//
     //---------------------//
-    public Map<String, String> getPluginDescriptions() {
-        return pluginDescriptions;
+    public List<Map<?, ?>> getPluginDescriptions() {
+        return getYamlConfiguration().getMapList("plugins");
     }
 
 
