@@ -108,6 +108,10 @@ public class Main extends JavaPlugin{
 
 		// Location manager
 		getCommand("setlocation").setExecutor(new SetLocationCommand());
+
+		// Plugins command
+		getCommand("plugins").setExecutor(new PluginsCommand()); // FIXME overwrite not working
+		getCommand("pl").setExecutor(new PluginsCommand());
 		
 		// --- Register Events --- //
 		PluginManager pm = Bukkit.getPluginManager();

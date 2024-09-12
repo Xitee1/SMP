@@ -19,3 +19,5 @@ commands:
   hilfe:
   help:
   setlocation:
+  plugins:
+  pl:
