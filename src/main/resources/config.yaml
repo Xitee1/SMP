@@ -28,6 +28,12 @@ trustlevel:
       - 'spartan.punishment'
       - 'spartan.admin'
 
+plugins:
+  - name: ExamplePlugin1
+    description: Example Description of Example Plugin 1.
+  - name: ExamplePlugin2
+    description: Example Description of Example Plugin 2.
+
 ##############
 ### Blöcke ###
 ##############
