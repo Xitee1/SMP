@@ -53,7 +53,20 @@ public class Main extends JavaPlugin{
 
 		// Set the current detected MC version
 		String vstring = Bukkit.getBukkitVersion();
-		MCVersion = vstring.substring(0, vstring.lastIndexOf("-R")).replace("_", ".");
+		try {
+			// Extracts the leading numeric version, tolerating arbitrary suffixes:
+			//   "1.21.4-R0.1-SNAPSHOT"   -> "1.21.4"
+			//   "26.1.2-build.12-alpha"  -> "26.1.2"
+			//   "26.1.2.build.12-alpha"  -> "26.1.2"
+			Matcher m = Pattern.compile("^([0-9]+(?:\\.[0-9]+)*)").matcher(vstring.replace("_", "."));
+			if(!m.find())
+				throw new IllegalArgumentException("No leading version number in '" + vstring + "'");
+			MCVersion = m.group(1);
+		} catch (Exception e) {
+			e.printStackTrace();
+			getLogger().severe("Could not extract MC version from '" + vstring + "'! Defaulting to 1.20.");
+			MCVersion = "1.20";
+		}
 
 		// Load config and services
 		pluginConfig = new PluginConfig();
