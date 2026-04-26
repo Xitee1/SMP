@@ -75,7 +75,7 @@ public class PluginConfig extends BaseConfig {
      * @return true if the Discord API has been enabled.
      */
     public boolean isDiscordEnabled() {
-        return getYamlConfiguration().getBoolean("discord", false);
+        return getYamlConfiguration().getBoolean("discord.enabled", false);
     }
 
     /**
