@@ -30,6 +30,12 @@ public class JoinQuitListener implements Listener {
 	public void onLogin(PlayerLoginEvent e) {
 		Player p = e.getPlayer();
 
+		// Vanilla-Whitelist aushebeln: das Plugin regelt den Zugang.
+		// Wenn das Plugin nicht läuft, greift die Whitelist und nur Admins kommen rein.
+		if(e.getResult() == Result.KICK_WHITELIST) {
+			e.allow();
+		}
+
 		SMPPlayer smpp = SMPPlayer.getPlayer(p.getUniqueId());
 		if(!Database.isConnected() || smpp.getDataLoadingFailed()) {
 			e.disallow(Result.KICK_OTHER, Component.text(
